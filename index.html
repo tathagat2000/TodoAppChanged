@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>To Do App</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./src/styles.css" >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <body>
+    <div class="header colorAndRadius">
+      <div class="date" id="date"></div>
+      <div class="heading">To-Do App</div>
+    </div>
+
+    <div class="mainBody">
+      <div class="col1 colorAndRadius">
+        <div class="todoList" id="todoList">
+          <!-- <div class="todo">
+            <div class="buttons">
+              <button class="edit">
+                <i class="far fa-edit"></i>
+              </button>
+              <button class="delete">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="todoText">
+              Walk My Dog
+            </div>
+
+            <div class="time">
+              08/02/2021, 22:06:09
+            </div>
+
+            <div class="symbols">
+              <i id="urgencySymbol" class="red fa fa-exclamation-triangle"></i>
+              <i id="categorySymbol" class="grey fa fa-book"></i>
+            </div>
+
+            <div class="complete">
+              <button class="completeButton" id="completeButton">
+                Mark Complete
+              </button>
+            </div>
+
+            <div class="notSelect" id="select"></div>
+          </div> -->
+        </div>
+
+        <div class="alterSelection">
+          <div class="completeSelection">
+            <div class="hiddenTextCompleteSelection">
+              Mark Selection Complete
+            </div>
+
+            <button class="round" id="completeSelection">
+              <i class="fa fa-check-circle"></i>
+            </button>
+          </div>
+
+          <div class="incompleteSelection">
+            <span class="hiddenTextIncompleteSelection">
+              Mark Selection Incomplete</span
+            >
+
+            <button class="round" id="incompleteSelection">
+              <i class="fa fa-square"></i>
+            </button>
+          </div>
+
+          <div class="deleteSelection">
+            <span class="hiddenTextDeleteSelection">Delete Selection</span>
+            <button class="round" id="deleteSelection">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col2">
+        <div class="filter colorAndRadius">
+          <div class="logos" id="logos">
+            <button class="icon" id="low">
+              <i class="grey fa fa-exclamation-triangle"></i>
+            </button>
+            <button class="icon" id="medium">
+              <i class="orange fa fa-exclamation-triangle"></i>
+            </button>
+            <button class="icon" id="high">
+              <i class="red fa fa-exclamation-triangle"></i>
+            </button>
+            <button class="icon" id="personal">
+              <i class="blue fa fa-user"></i>
+            </button>
+            <button class="icon" id="academic">
+              <i class="grey fa fa-book"></i>
+            </button>
+            <button class="icon" id="social">
+              <i class="pink fa fa-users"></i>
+            </button>
+          </div>
+          <p class="filterText">Filter Todos</p>
+        </div>
+
+        <div class="analytics colorAndRadius">
+          <div class="circle">
+            <div class="percent" id="percent">0 %</div>
+            <div class="ratio" id="ratio">0 / 0</div>
+          </div>
+          <p class="analyticsText">Analytics</p>
+        </div>
+
+        <div class="createTodo colorAndRadius" id="createTodo">
+          <div class="createText">Create Todo</div>
+          <input
+            type="text"
+            id="addTodo"
+            class="addTodo"
+            placeholder="Add Your Todo..."
+          />
+          <div class="urgency">
+            <p class="text">Urgency</p>
+            <select id="urgency" name="urgency" class="selector">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="category">
+            <p class="text">Category</p>
+            <select id="category" name="category" class="selector">
+              <option value="personal">Personal</option>
+              <option value="academic">Academic</option>
+              <option value="social">Social</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="myModal" id="myModal">
+      <div class="modalContent" id="modalContent">
+          <input
+            type="text"
+            id="updatedAddTodo"
+            class="addTodo"
+            placeholder="Add Your Todo..."
+          />
+          <div class="urgency">
+            <p class="text">Urgency</p>
+            <select id="updatedUrgency" name="urgency" class="selector">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="category">
+            <p class="text">Category</p>
+            <select id="updatedCategory" name="category" class="selector">
+              <option value="personal">Personal</option>
+              <option value="academic">Academic</option>
+              <option value="social">Social</option>
+            </select>
+          </div>
+          <div class="modalButtons">
+            <button class="cancel" id="cancel">Cancel</button>
+            <button class="save" id="save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="snackbar" class="snackbar">I am here</div>
+
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js"></script> -->
+    <script type="module" src="./src/index.js"></script>
+  </body>
+</html>

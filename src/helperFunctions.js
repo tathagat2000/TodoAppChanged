@@ -9,9 +9,9 @@ const helperFunctions = {
   },
 
   resetTodoInputValues: () => {
-    CONSTANTS.queriedElements.todoInput.value = "";
-    CONSTANTS.queriedElements.urgency.selectedIndex = 0;
-    CONSTANTS.queriedElements.category.selectedIndex = 0;
+    document.querySelector("#addTodo").value = "";
+    document.querySelector("#urgency").selectedIndex = 0;
+    document.querySelector("#category").selectedIndex = 0;
   },
 
   createEvent: (type, todoObjectListBefore, todoObjectListAfter) => {

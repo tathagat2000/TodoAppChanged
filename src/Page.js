@@ -35,12 +35,12 @@ const setTodoTime = (element, time) => {
 
 const setIsCompleted = (element, completed) => {
   if (completed) {
-    element.style.opacity = 0.5;
+    element.classList.add("opacity");
     element.querySelector(
       `[data-button=${CONSTANTS.dataAttributes.COMPLETEBUTTON}]`
     ).innerHTML = "Completed. Undo?";
   } else {
-    element.style.opacity = 1;
+    element.classList.remove("opacity");
     element.querySelector(
       `[data-button=${CONSTANTS.dataAttributes.COMPLETEBUTTON}]`
     ).innerHTML = "Mark Complete";
@@ -49,12 +49,12 @@ const setIsCompleted = (element, completed) => {
 
 const setIsSelected = (element, isElementSelected) => {
   if (isElementSelected) {
-    element.style.boxShadow = "0px 0px 2vh 1vh grey";
+    element.classList.add("selected");
     element.querySelector(
       `[data-button=${CONSTANTS.dataAttributes.SELECTBUTTON}]`
     ).style.backgroundColor = "red";
   } else {
-    element.style.boxShadow = "";
+    element.classList.remove("selected");
     element.querySelector(
       `[data-button=${CONSTANTS.dataAttributes.SELECTBUTTON}]`
     ).style.backgroundColor = "white";
@@ -76,19 +76,19 @@ const setValuesOnTodo = (element, todo, isElementSelected) => {
 };
 
 const clearAllTodosFromPage = () =>
-  (CONSTANTS.queriedElements.todoList.innerHTML = "");
+  (document.querySelector("#todoList").innerHTML = "");
 
 const addTodoToPage = (element) =>
-  CONSTANTS.queriedElements.todoList.appendChild(element);
+  document.querySelector("#todoList").appendChild(element);
 
 const addEventListenerOnTodo = (element, eventHandler) =>
   element.addEventListener("click", eventHandler);
 
-const readTodoText = () => CONSTANTS.queriedElements.todoInput.value;
+const readTodoText = () => document.querySelector("#addTodo").value;
 
-const readTodoUrgencyValue = () => CONSTANTS.queriedElements.urgency.value;
+const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 
-const readTodoCategoryValue = () => CONSTANTS.queriedElements.category.value;
+const readTodoCategoryValue = () => document.querySelector("#category").value;
 
 export class Page {
   render = (todoEventHandler, listOfTodos, selectedTodoIds) => {
@@ -105,9 +105,9 @@ export class Page {
   };
 
   resetTodoInputValues = () => {
-    CONSTANTS.queriedElements.todoInput.value = "";
-    CONSTANTS.queriedElements.urgency.selectedIndex = 0;
-    CONSTANTS.queriedElements.category.selectedIndex = 0;
+    document.querySelector("#addTodo").value = "";
+    document.querySelector("#urgency").selectedIndex = 0;
+    document.querySelector("#category").selectedIndex = 0;
   };
 
   changeLogoStyle = (button, filterState) => {
@@ -119,10 +119,9 @@ export class Page {
   };
 
   addFilterEventListener = (filterEventHandler) => {
-    CONSTANTS.queriedElements.filterLogos.addEventListener(
-      "click",
-      filterEventHandler
-    );
+    document
+      .querySelector("#logos")
+      .addEventListener("click", filterEventHandler);
   };
 
   addHistoryEventListener = (undoAndRedoEventHandler) => {
@@ -130,36 +129,33 @@ export class Page {
   };
 
   addBulkEventListeners = (bulkUpdateEventHandler, bulkDeleteEventHandler) => {
-    CONSTANTS.queriedElements.deleteSelection.addEventListener(
-      "click",
-      bulkDeleteEventHandler
-    );
+    document
+      .querySelector("#deleteSelection")
+      .addEventListener("click", bulkDeleteEventHandler);
 
-    CONSTANTS.queriedElements.completeSelection.addEventListener(
-      "click",
-      (event) => {
+    document
+      .querySelector("#completeSelection")
+      .addEventListener("click", (event) => {
         bulkUpdateEventHandler(1);
-      }
-    );
+      });
 
-    CONSTANTS.queriedElements.incompleteSelection.addEventListener(
-      "click",
-      (event) => {
+    document
+      .querySelector("#incompleteSelection")
+      .addEventListener("click", (event) => {
         bulkUpdateEventHandler(0);
-      }
-    );
+      });
   };
 
   addEventListenerForCreatingNewTodo = (createTodoEventHandler) => {
-    CONSTANTS.queriedElements.createTodoBox.addEventListener(
-      "keypress",
-      (event) =>
+    document
+      .querySelector("#createTodo")
+      .addEventListener("keypress", (event) =>
         createTodoEventHandler(
           event,
           readTodoText(),
           readTodoUrgencyValue(),
           readTodoCategoryValue()
         )
-    );
+      );
   };
 }

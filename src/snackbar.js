@@ -1,7 +1,7 @@
 import { CONSTANTS } from "./constants.js";
 
 export const showSnackbar = (message) => {
-  const snackbar = CONSTANTS.queriedElements.snackbar;
+  const snackbar = document.querySelector("#snackbar");
   snackbar.innerHTML = message;
   snackbar.classList.add("show");
   setTimeout(() => {

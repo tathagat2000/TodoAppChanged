@@ -1,26 +1,4 @@
 export const CONSTANTS = {
-  queriedElements: {
-    analyticsPercent: document.querySelector("#percent"),
-    analyticsRatio: document.querySelector("#ratio"),
-    createTodoBox: document.querySelector("#createTodo"),
-    todoInput: document.querySelector("#addTodo"),
-    urgency: document.querySelector("#urgency"),
-    category: document.querySelector("#category"),
-    deleteSelection: document.querySelector("#deleteSelection"),
-    completeSelection: document.querySelector("#completeSelection"),
-    incompleteSelection: document.querySelector("#incompleteSelection"),
-    filterLogos: document.querySelector("#logos"),
-    modal: document.querySelector("#myModal"),
-    saveModal: document.querySelector("#save"),
-    cancelModal: document.querySelector("#cancel"),
-    updatedText: document.querySelector("#updatedAddTodo"),
-    updatedUrgency: document.querySelector("#updatedUrgency"),
-    updatedCategory: document.querySelector("#updatedCategory"),
-    snackbar: document.querySelector("#snackbar"),
-    headerDate: document.querySelector("#date"),
-    todoList: document.querySelector("#todoList"),
-  },
-
   dataAttributes: {
     EDITBUTTON: "edit",
     DELETEBUTTON: "delete",

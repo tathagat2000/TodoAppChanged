@@ -149,6 +149,14 @@ body {
   color: rgb(206, 99, 117);
 }
 
+.opacity {
+  opacity: 0.5;
+}
+
+.selected {
+  box-shadow: 0px 0px 2vh 1vh grey;
+}
+
 .circle {
   display: flex;
   flex-direction: column;

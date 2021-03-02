@@ -5,7 +5,7 @@ const findNumberOfCompletedTodos = (database) => {
 };
 
 const updateRatioInFraction = (numberOfTodos, numberOfCompletedTodos) => {
-  CONSTANTS.queriedElements.analyticsRatio.innerHTML =
+  document.querySelector("#analyticsRatio").innerHTML =
     numberOfCompletedTodos + " / " + numberOfTodos;
 };
 
@@ -16,7 +16,7 @@ const updateRatioInDecimal = (numberOfTodos, numberOfCompletedTodos) => {
   } else {
     value = Math.round((100 * numberOfCompletedTodos) / numberOfTodos);
   }
-  CONSTANTS.queriedElements.analyticsPercent.innerHTML = value + " % ";
+  document.querySelector("#analyticsPercent").innerHTML = value + " % ";
 };
 
 export const updateAnalytics = (database) => {

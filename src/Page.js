@@ -1,6 +1,7 @@
 import { updateAnalytics } from "./analytics.js";
 import { iconClasses, createTodoElement } from "./todoElement.js";
 import { CONSTANTS } from "./constants.js";
+import { Modal } from "./Modal.js";
 
 const setTodoText = (element, textValue) => {
   element.querySelector(
@@ -91,6 +92,9 @@ const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 const readTodoCategoryValue = () => document.querySelector("#category").value;
 
 export class Page {
+  constructor() {
+    this.modal = new Modal();
+  }
   render = (todoEventHandler, listOfTodos, selectedTodoIds) => {
     clearAllTodosFromPage();
     listOfTodos.forEach((todo) => {

@@ -201,17 +201,22 @@ export class Model {
     this.render();
   };
 
-  editTodoHandler = () => {};
+  updateTodoHandler = (updatedTodoList, event) => {
+    this.interface.updateTodoInDatabase(updatedTodoList).then(() => {
+      this.addToHistory(event);
+      this.render();
+    });
+  };
 
   completeTodoHandler = (id) => {
     const todo = this.interface.findTodoBasedOnId(id);
-    const todoListBeforeupdate = [todo];
+    const todoListBeforeUpdate = [todo];
     const updatedTodo = helperFunctions.makeCopyOfObject(todo);
     updatedTodo.isCompleted = !updatedTodo.isCompleted;
     const todoListAfterUpdate = [updatedTodo];
     const event = helperFunctions.createEvent(
       "update",
-      todoListAfterUpdate,
+      todoListBeforeUpdate,
       todoListAfterUpdate
     );
     this.interface

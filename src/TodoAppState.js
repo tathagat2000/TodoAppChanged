@@ -107,7 +107,7 @@ export class Controller {
         break;
 
       case CONSTANTS.dataAttributes.EDITBUTTON:
-        this.model.editTodoHandler(id);
+        this.editTodoHandler(id);
         break;
 
       case CONSTANTS.dataAttributes.DELETEBUTTON:
@@ -117,6 +117,30 @@ export class Controller {
       default:
         break;
     }
+  };
+
+  editTodoHandler = (id) => {
+    const text = this.model.interface.getCurrentTodoData(id, "text");
+    const urgency = this.model.interface.getCurrentTodoData(id, "urgency");
+    const category = this.model.interface.getCurrentTodoData(id, "category");
+
+    this.page.modal.show(text, urgency, category, id);
+  };
+
+  updateTodoHandler = (updatedText, updatedUrgency, updatedCategory, id) => {
+    const todoBeforeUpdating = this.model.interface.findTodoBasedOnId(id);
+    const todoListBeforeUpdating = [todoBeforeUpdating];
+    const updatedTodo = { ...todoBeforeUpdating };
+    updatedTodo.text = updatedText;
+    updatedTodo.urgency = updatedUrgency;
+    updatedTodo.category = updatedCategory;
+    const todoListAfterUpdating = [updatedTodo];
+    const event = helperFunctions.createEvent(
+      "update",
+      todoListBeforeUpdating,
+      todoListBeforeUpdating
+    );
+    this.model.updateTodoHandler(todoListAfterUpdating, event);
   };
 
   initialize = () => {
@@ -130,5 +154,7 @@ export class Controller {
     this.page.addEventListenerForCreatingNewTodo(
       this.eventHandlerForCreatingNewTodo
     );
+    this.page.modal.addEventListenerToSave(this.updateTodoHandler);
+    this.page.modal.addEventListenerToClose();
   };
 }

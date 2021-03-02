@@ -84,26 +84,82 @@ const addTodoToPage = (element) =>
 const addEventListenerOnTodo = (element, eventHandler) =>
   element.addEventListener("click", eventHandler);
 
+const readTodoText = () => CONSTANTS.queriedElements.todoInput.value;
+
+const readTodoUrgencyValue = () => CONSTANTS.queriedElements.urgency.value;
+
+const readTodoCategoryValue = () => CONSTANTS.queriedElements.category.value;
+
 export class Page {
-  constructor(todoEventHandler, getFilteredDatabase, getSelectedTodoIds) {
-    this.todoEventHandler = todoEventHandler;
-    this.getFilteredDatabase = getFilteredDatabase;
-    this.getSelectedTodoIds = getSelectedTodoIds;
-  }
-
-  render = () => {
+  render = (todoEventHandler, listOfTodos, selectedTodoIds) => {
     clearAllTodosFromPage();
-
-    const selectedTodos = this.getSelectedTodoIds();
-
-    this.getFilteredDatabase().forEach((todo) => {
+    listOfTodos.forEach((todo) => {
       const element = createTodoElement();
-      const isElementSelected = selectedTodos.includes(todo.id);
+      const isElementSelected = selectedTodoIds.includes(todo.id);
       setValuesOnTodo(element, todo, isElementSelected);
-      addEventListenerOnTodo(element, this.todoEventHandler);
+      addEventListenerOnTodo(element, todoEventHandler);
       addTodoToPage(element);
     });
 
-    updateAnalytics(this.getFilteredDatabase());
+    updateAnalytics(listOfTodos);
+  };
+
+  resetTodoInputValues = () => {
+    CONSTANTS.queriedElements.todoInput.value = "";
+    CONSTANTS.queriedElements.urgency.selectedIndex = 0;
+    CONSTANTS.queriedElements.category.selectedIndex = 0;
+  };
+
+  changeLogoStyle = (button, filterState) => {
+    if (filterState[CONSTANTS.mapFilterIdToValue[button.id]]) {
+      button.style.fontSize = "35px";
+    } else {
+      button.style.fontSize = "20px";
+    }
+  };
+
+  addFilterEventListener = (filterEventHandler) => {
+    CONSTANTS.queriedElements.filterLogos.addEventListener(
+      "click",
+      filterEventHandler
+    );
+  };
+
+  addHistoryEventListener = (undoAndRedoEventHandler) => {
+    document.addEventListener("keydown", undoAndRedoEventHandler);
+  };
+
+  addBulkEventListeners = (bulkUpdateEventHandler, bulkDeleteEventHandler) => {
+    CONSTANTS.queriedElements.deleteSelection.addEventListener(
+      "click",
+      bulkDeleteEventHandler
+    );
+
+    CONSTANTS.queriedElements.completeSelection.addEventListener(
+      "click",
+      (event) => {
+        bulkUpdateEventHandler(1);
+      }
+    );
+
+    CONSTANTS.queriedElements.incompleteSelection.addEventListener(
+      "click",
+      (event) => {
+        bulkUpdateEventHandler(0);
+      }
+    );
+  };
+
+  addEventListenerForCreatingNewTodo = (createTodoEventHandler) => {
+    CONSTANTS.queriedElements.createTodoBox.addEventListener(
+      "keypress",
+      (event) =>
+        createTodoEventHandler(
+          event,
+          readTodoText(),
+          readTodoUrgencyValue(),
+          readTodoCategoryValue()
+        )
+    );
   };
 }

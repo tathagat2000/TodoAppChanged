@@ -1,113 +1,134 @@
 import { CONSTANTS } from "./constants.js";
 import { updateHeaderDate } from "./updateHeaderDate.js";
-import { LocalDatabase } from "./LocalDatabase.js";
 import { Page } from "./Page.js";
-import { Filter } from "./filter.js";
-import { ServerDatabase } from "./ServerDatabase.js";
-import { History } from "./History.js";
-import { BulkSelection } from "./BulkSelection.js";
-import { Todo } from "./Todo.js";
-import { showSnackbar } from "./snackbar.js";
+import { Model } from "./Model.js";
+import { helperFunctions } from "./helperFunctions.js";
 
-export class TodoAppState {
+export class Controller {
   constructor() {
-    this.filter = new Filter();
-    this.serverDatabase = new ServerDatabase();
-    this.localDatabase = new LocalDatabase(this.filter.filterDatabase);
-
-    this.page = new Page(
-      this.todoEventHandler,
-      this.localDatabase.getFilteredDatabase,
-      this.localDatabase.getSelectedTodoIds
-    );
-
-    this.history = new History(
-      this.localDatabase,
-      this.serverDatabase,
-      this.page.render
-    );
-
-    this.bulkSelection = new BulkSelection(
-      this.localDatabase,
-      this.serverDatabase,
-      this.history.addToHistory
-    );
-
-    this.initialize().then(() => {
-      this.todo = new Todo(
-        this.localDatabase,
-        this.serverDatabase,
-        this.page.render,
-        this.history.addToHistory
-      );
-    });
+    this.model = new Model(this.render);
+    this.page = new Page();
+    this.initialize();
   }
 
+  render = () => {
+    const todoEventHandler = this.todoEventHandler;
+    const listOfTodos = this.model.getFilteredTodos();
+    const selectedTodoIds = this.model.interface.getSelectedTodoIds();
+    this.page.render(todoEventHandler, listOfTodos, selectedTodoIds);
+  };
+
+  filterEventHandler = (event) => {
+    const buttonClicked = event.path.find(
+      (element) => element.tagName === "BUTTON"
+    );
+
+    if (buttonClicked) {
+      this.model.filter.toggleFilterState(buttonClicked.id);
+      this.render();
+      this.page.changeLogoStyle(
+        buttonClicked,
+        this.model.filter.getFilterState()
+      );
+    }
+  };
+
+  undoAndRedoEventHandler = (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      this.model.undoHandler();
+    } else if (
+      (event.ctrlKey || event.metaKey) &&
+      event.key.toLowerCase() === "y"
+    ) {
+      this.model.redoHandler();
+      event.preventDefault();
+    }
+  };
+
+  bulkDeleteHandler = () => {
+    const listOfTodosToBeDeleted = this.model.interface.getSelectedTodos();
+    const event = helperFunctions.createEvent(
+      "delete",
+      listOfTodosToBeDeleted,
+      listOfTodosToBeDeleted
+    );
+    if (listOfTodosToBeDeleted === 0) return;
+    this.model.bulkDelete(event, listOfTodosToBeDeleted);
+  };
+
+  bulkUpdateHandler = (isCompleted) => {
+    const listOfTodosBeforeUpdating = this.model.interface.getSelectedTodos();
+    const listOfTodosAfterUpdating = this.model.interface
+      .getSelectedTodos()
+      .map((todo) => {
+        todo.isCompleted = isCompleted;
+        return todo;
+      });
+    const event = helperFunctions.createEvent(
+      "update",
+      listOfTodosBeforeUpdating,
+      listOfTodosAfterUpdating
+    );
+    if (listOfTodosBeforeUpdating === 0) return;
+    this.model.bulkUpdate(event, listOfTodosAfterUpdating);
+  };
+
+  eventHandlerForCreatingNewTodo = (event, text, urgency, category) => {
+    const key = event.keyCode || event.which || 0;
+    if (key === 13 && text) {
+      const newTodoObject = this.createTodoObject(text, urgency, category);
+      this.model.addNewTodo(newTodoObject);
+      this.page.resetTodoInputValues();
+    }
+  };
+
+  createTodoObject = (text, urgency, category) => {
+    return {
+      text,
+      urgency,
+      category,
+      isCompleted: false,
+      time: helperFunctions.getTime(),
+    };
+  };
+
   todoEventHandler = (event) => {
-    this.todo.eventHandler(event);
-  };
+    const id = helperFunctions.getTodoIdFromEventPath(event.path);
 
-  addFilterEventListener = () => {
-    CONSTANTS.queriedElements.filterLogos.addEventListener("click", (event) => {
-      this.filter.eventHandler(event);
-      this.page.render();
-    });
-  };
+    const button = helperFunctions.findButtonClickedOnTodo(event.path);
 
-  addHistoryEventListener = () => {
-    document.addEventListener("keydown", (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
-        this.history.undoHandler();
-      }
-    });
+    switch (button?.dataset?.button) {
+      case CONSTANTS.dataAttributes.COMPLETEBUTTON:
+        this.model.completeTodoHandler(id);
+        break;
 
-    document.addEventListener("keydown", (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") {
-        this.history.redoHandler();
-        event.preventDefault();
-      }
-    });
-  };
+      case CONSTANTS.dataAttributes.SELECTBUTTON:
+        this.model.selectTodoHandler(id);
+        break;
 
-  addBulkEventListener = () => {
-    CONSTANTS.queriedElements.deleteSelection.addEventListener(
-      "click",
-      async (event) => {
-        await this.bulkSelection.deleteInBulkHandler();
-        this.page.render();
-      }
-    );
-    CONSTANTS.queriedElements.completeSelection.addEventListener(
-      "click",
-      async (event) => {
-        await this.bulkSelection.markSelectionInBulkHandler(1);
-        this.page.render();
-      }
-    );
+      case CONSTANTS.dataAttributes.EDITBUTTON:
+        this.model.editTodoHandler(id);
+        break;
 
-    CONSTANTS.queriedElements.incompleteSelection.addEventListener(
-      "click",
-      async (event) => {
-        await this.bulkSelection.markSelectionInBulkHandler(0);
-        this.page.render();
-      }
-    );
-  };
+      case CONSTANTS.dataAttributes.DELETEBUTTON:
+        this.model.deleteTodoHandler(id);
+        break;
 
-  intializeLocalDatabase = () => {
-    return this.localDatabase
-      .copyServerDatabaseToLocalDatabase(this.serverDatabase.getDatabase)
-      .then(() => {
-        this.page.render();
-      })
-      .catch((err) => showSnackbar(err));
+      default:
+        break;
+    }
   };
 
   initialize = () => {
     updateHeaderDate();
-    this.addFilterEventListener();
-    this.addHistoryEventListener();
-    this.addBulkEventListener();
-    return this.intializeLocalDatabase();
+    this.page.addFilterEventListener(this.filterEventHandler);
+    this.page.addHistoryEventListener(this.undoAndRedoEventHandler);
+    this.page.addBulkEventListeners(
+      this.bulkUpdateHandler,
+      this.bulkDeleteHandler
+    );
+    this.page.addEventListenerForCreatingNewTodo(
+      this.eventHandlerForCreatingNewTodo
+    );
   };
 }

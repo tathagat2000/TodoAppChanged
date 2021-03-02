@@ -14,10 +14,11 @@ const helperFunctions = {
     CONSTANTS.queriedElements.category.selectedIndex = 0;
   },
 
-  createEvent: (type, todoObject) => {
+  createEvent: (type, todoObjectListBefore, todoObjectListAfter) => {
     return {
       operationType: type,
-      todoObjectBefore: { ...todoObject },
+      todoObjectListBefore: todoObjectListBefore.map((todo) => ({ ...todo })),
+      todoObjectListAfter: todoObjectListAfter.map((todo) => ({ ...todo })),
     };
   },
 

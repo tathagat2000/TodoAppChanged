@@ -2,15 +2,15 @@
 // DONE
 import { helperFunctions } from "./helperFunctions.js";
 
-export class ServerDatabase {
+export class Server {
   constructor() {
     this.database = this.loadDatabaseFromLocalStorage();
-    this.serverFailProbability = 0;
+    this.FailProbability = 0;
   }
 
   isServerWorking = () => {
     const current = Math.random();
-    if (current > this.serverFailProbability) {
+    if (current > this.FailProbability) {
       return true;
     }
     return false;
@@ -35,24 +35,11 @@ export class ServerDatabase {
   findIndexOfTodoBasedOnId = (id) =>
     this.database.findIndex((todo) => todo.id === id);
 
-  createTodoInServerDatabase = (todo) => {
+  createTodo = (listOfTodos) => {
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
-        this.database.push(todo);
-        this.saveDatabaseInLocalStorage();
-        resolve("done");
-      } else {
-        reject("Could Not Add Todo");
-      }
-    });
-  };
-
-  bulkCreateTodoInServerDatabase = (listOfTodos) => {
-    return new Promise((resolve, reject) => {
-      if (this.isServerWorking()) {
-        listOfTodos.forEach((todo) => {
-          this.database.push(todo);
-        });
+        const copyOfListOfTodos = listOfTodos.map((todo) => ({ ...todo }));
+        this.database = [...this.database, ...copyOfListOfTodos];
         this.saveDatabaseInLocalStorage();
         resolve("done");
       } else {
@@ -61,39 +48,13 @@ export class ServerDatabase {
     });
   };
 
-  updateTodoInServerDatabase = (todo) => {
+  deleteTodo = (listOfTodos) => {
+    const listOfTodoIds = listOfTodos.map((todo) => todo.id);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
-        const idx = this.findIndexOfTodoBasedOnId(todo.id);
-        this.database[idx] = todo;
-        this.saveDatabaseInLocalStorage();
-        resolve("done");
-      } else {
-        reject("Could Not Update In Database");
-      }
-    });
-  };
-
-  deleteTodoInServerDatabase = (id) => {
-    return new Promise((resolve, reject) => {
-      if (this.isServerWorking()) {
-        const idx = this.findIndexOfTodoBasedOnId(id);
-        this.database.splice(idx, 1);
-        this.saveDatabaseInLocalStorage();
-        resolve("done");
-      } else {
-        reject("Could Not Delete Todo");
-      }
-    });
-  };
-
-  bulkDeleteTodoInServerDatabase = (listOfIds) => {
-    return new Promise((resolve, reject) => {
-      if (this.isServerWorking()) {
-        listOfIds.forEach((id) => {
-          const idx = this.findIndexOfTodoBasedOnId(id);
-          this.database.splice(idx, 1);
-        });
+        this.database = this.database.filter(
+          (todo) => !listOfTodoIds.includes(todo.id)
+        );
         this.saveDatabaseInLocalStorage();
         resolve("done");
       } else {
@@ -102,13 +63,15 @@ export class ServerDatabase {
     });
   };
 
-  bulkUpdateTodoInServerDatabase = (listOfTodos) => {
+  updateTodo = (listOfTodos) => {
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
+        const databaseCopy = this.database.slice(0);
         listOfTodos.forEach((todo) => {
           const idx = this.findIndexOfTodoBasedOnId(todo.id);
-          this.database[idx] = todo;
+          databaseCopy[idx] = { ...todo };
         });
+        this.database = databaseCopy;
         this.saveDatabaseInLocalStorage();
         resolve("done");
       } else {

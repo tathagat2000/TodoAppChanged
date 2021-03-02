@@ -1,3 +1,3 @@
-import { TodoAppState } from "./TodoAppState.js";
+import { Controller } from "./TodoAppState.js";
 
-const todoAppState = new TodoAppState();
+const todoAppState = new Controller();

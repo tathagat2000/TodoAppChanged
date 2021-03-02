@@ -1,5 +1,3 @@
-// THIS IS MY SERVER SIDE DATABASE
-// DONE
 import { helperFunctions } from "./helperFunctions.js";
 
 export class Server {

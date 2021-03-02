@@ -1,5 +1,3 @@
-import { CONSTANTS } from "./constants.js";
-
 export const showSnackbar = (message) => {
   const snackbar = document.querySelector("#snackbar");
   snackbar.innerHTML = message;

@@ -1,5 +1,3 @@
-import { CONSTANTS } from "./constants.js";
-
 const findNumberOfCompletedTodos = (database) => {
   return database.filter((todo) => todo.isCompleted).length;
 };

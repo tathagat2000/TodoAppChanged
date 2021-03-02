@@ -1,5 +1,3 @@
-// THIS IS MY LOCAL DATABASE
-//DONE
 import { helperFunctions } from "./helperFunctions.js";
 import { Server } from "./Server.js";
 import { showSnackbar } from "./snackbar.js";

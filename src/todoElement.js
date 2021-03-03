@@ -1,4 +1,5 @@
 import { dataAttributes } from "./constants.js";
+import { valueToFilter } from "./constants.js";
 
 const initializeTodoElement = () => {
   const editIcon = {
@@ -145,10 +146,10 @@ export const createTodoElement = (element = todoElement) => {
 };
 
 export const iconClasses = {
-  low: ["grey", "fa", "fa-exclamation-triangle"],
-  medium: ["orange", "fa", "fa-exclamation-triangle"],
-  high: ["red", "fa", "fa-exclamation-triangle"],
-  personal: ["blue", "fa", "fa-user"],
-  academic: ["grey", "fa", "fa-book"],
-  social: ["pink", "fa", "fa-users"],
+  [valueToFilter.low]: ["grey", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.medium]: ["orange", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.high]: ["red", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.personal]: ["blue", "fa", "fa-user"],
+  [valueToFilter.academic]: ["grey", "fa", "fa-book"],
+  [valueToFilter.social]: ["pink", "fa", "fa-users"],
 };

@@ -74,10 +74,10 @@ const setValuesOnTodo = (element, todo, isElementSelected) => {
   setTodoId(element, todo.id);
 };
 
-const clearAllTodosFromPage = () =>
+const clearAllTodos = () =>
   (document.querySelector("#todoList").innerHTML = "");
 
-const addTodoToPage = (element) =>
+const addTodo = (element) =>
   document.querySelector("#todoList").appendChild(element);
 
 const addEventListenerOnTodo = (element, eventHandler) =>
@@ -89,18 +89,18 @@ const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 
 const readTodoCategoryValue = () => document.querySelector("#category").value;
 
-export class Page {
+export class View {
   constructor() {
     this.modal = new Modal();
   }
   render = (todoEventHandler, todoList, selectedTodoIds) => {
-    clearAllTodosFromPage();
+    clearAllTodos();
     todoList.forEach((todo) => {
       const element = createTodoElement();
       const isElementSelected = selectedTodoIds.includes(todo.id);
       setValuesOnTodo(element, todo, isElementSelected);
       addEventListenerOnTodo(element, todoEventHandler);
-      addTodoToPage(element);
+      addTodo(element);
     });
 
     updateAnalytics(todoList);
@@ -114,10 +114,15 @@ export class Page {
 
   changeLogoStyle = (button, filterState) => {
     if (filterState[filterIdToValue[button.id]]) {
-      button.style.fontSize = "35px";
+      button.classList.add("larger");
     } else {
-      button.style.fontSize = "20px";
+      button.classList.remove("larger");
     }
+  };
+
+  updateHeaderDate = () => {
+    const currentDate = new Date().toDateString();
+    document.querySelector("#date").innerHTML = currentDate;
   };
 
   addFilterEventListener = (filterEventHandler) => {
@@ -131,6 +136,8 @@ export class Page {
   };
 
   addBulkEventListeners = (bulkUpdateEventHandler, bulkDeleteEventHandler) => {
+    const completed = 1;
+    const notCompleted = 0;
     document
       .querySelector("#deleteSelection")
       .addEventListener("click", bulkDeleteEventHandler);
@@ -138,13 +145,13 @@ export class Page {
     document
       .querySelector("#completeSelection")
       .addEventListener("click", (event) => {
-        bulkUpdateEventHandler(1);
+        bulkUpdateEventHandler(completed);
       });
 
     document
       .querySelector("#incompleteSelection")
       .addEventListener("click", (event) => {
-        bulkUpdateEventHandler(0);
+        bulkUpdateEventHandler(notCompleted);
       });
   };
 

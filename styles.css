@@ -116,6 +116,10 @@ body {
   outline: none;
 }
 
+.larger {
+  font-size: 35px;
+}
+
 .icon:hover {
   cursor: pointer;
   box-shadow: 0px 0px 16px 0px black;

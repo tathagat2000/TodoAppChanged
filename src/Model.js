@@ -44,8 +44,7 @@ export class Model {
     return maximumId;
   };
 
-  findTodoById = (id) =>
-    helperFunctions.makeCopy(this.todos.find((todo) => todo.id === id));
+  findTodoById = (id) => this.todos.find((todo) => todo.id === id);
 
   resetSelection = () => (this.selectedTodoIds = []);
 
@@ -93,10 +92,10 @@ export class Model {
   };
 
   changeHistoryIndex = (type) => {
-    if (type === actionType.UNDO) {
-      this.decrementHistoryIndex();
-    } else {
+    if (type === actionType.REDO) {
       this.incrementHistoryIndex();
+    } else if (type === actionType.UNDO) {
+      this.decrementHistoryIndex();
     }
   };
 
@@ -109,11 +108,12 @@ export class Model {
   getTodoListFromHistory = (action, type) => {
     if (type === actionType.REDO) {
       return action.todoListAfterUpdate;
-    } else {
+    } else if (type === actionType.UNDO) {
       return action.todoListBeforeUpdate;
     }
   };
 
+  //Used for UNDO/REDO Operations
   updateOperation = (action, type) => {
     const todoList = this.getTodoListFromHistory(action, type);
 
@@ -124,13 +124,13 @@ export class Model {
         this.onStateChange();
         this.changeHistoryIndex(type);
       })
-      .catch((err) => {
-        showSnackbar(err);
-      });
+      .catch(showSnackbar);
   };
 
+  //Used for UNDO/REDO Operations
   deleteOperation = (action, type) => {
     const todoList = this.getTodoListFromHistory(action, type);
+
     this.server
       .deleteTodo(todoList)
       .then(() => {
@@ -138,11 +138,10 @@ export class Model {
         this.onStateChange();
         this.changeHistoryIndex(type);
       })
-      .catch((err) => {
-        showSnackbar(err);
-      });
+      .catch(showSnackbar);
   };
 
+  //Used for UNDO/REDO Operations
   createOperation = (action, type) => {
     const todoList = this.getTodoListFromHistory(action, type);
 
@@ -153,9 +152,7 @@ export class Model {
         this.onStateChange();
         this.changeHistoryIndex(type);
       })
-      .catch((err) => {
-        showSnackbar(err);
-      });
+      .catch(showSnackbar);
   };
 
   undoHandler = () => {
@@ -208,86 +205,81 @@ export class Model {
     return this.filter.filterTodos(todoList);
   };
 
+  //Used for Bulk Operations, where a user selects many todos at once and deletes them
   bulkDelete = (action, todos) => {
-    const todoList = helperFunctions.convertToList(todos);
     this.server
-      .deleteTodo(todoList)
+      .deleteTodo(todos)
       .then(() => {
-        todoList.forEach(this.deleteTodo);
+        helperFunctions.convertToList(todos).forEach(this.deleteTodo);
         this.addToHistory(action);
         this.resetSelection();
         this.onStateChange();
       })
-      .catch((err) => showSnackbar(err));
+      .catch(showSnackbar);
   };
 
+  //Used for Bulk Operations, where a user selects many todos at once and updates them
   bulkUpdate = (action, todos) => {
-    const todoList = helperFunctions.convertToList(todos);
     this.server
-      .updateTodo(todoList)
+      .updateTodo(todos)
       .then(() => {
-        helperFunctions.makeCopy(todoList).forEach(this.updateTodo);
+        helperFunctions.convertToList(todos).forEach(this.updateTodo);
         this.addToHistory(action);
         this.resetSelection();
         this.onStateChange();
       })
-      .catch((err) => {
-        showSnackbar(err);
-      });
+      .catch(showSnackbar);
   };
 
+  //Used for adding a new Todo
   addNewTodo = (todo) => {
     todo = { id: this.currentTodoId, ...todo };
     this.incrementCurrentTodoId();
-    const todoList = helperFunctions.convertToList(todo);
 
-    const action = helperFunctions.createAction(
-      actionType.CREATE,
-      todoList,
-      todoList
-    );
+    const action = helperFunctions.createAction(actionType.CREATE, todo, todo);
     this.server
-      .createTodo(todoList)
+      .createTodo(todo)
       .then(() => {
-        helperFunctions.makeCopy(todoList).forEach(this.addTodo);
+        helperFunctions.convertToList(todo).forEach(this.addTodo);
         this.addToHistory(action);
         this.onStateChange();
       })
-      .catch((err) => showSnackbar(err));
+      .catch(showSnackbar);
   };
 
+  //Used when a user deletes a todo
   deleteTodoHandler = (id) => {
     const todo = this.findTodoById(id);
-    const todoList = helperFunctions.convertToList(todo);
-    const action = helperFunctions.createAction(
-      actionType.DELETE,
-      todoList,
-      todoList
-    );
+    const action = helperFunctions.createAction(actionType.DELETE, todo, todo);
     this.server
-      .deleteTodo(todoList)
+      .deleteTodo(todo)
       .then(() => {
-        todoList.forEach(this.deleteTodo);
+        helperFunctions.convertToList(todo).forEach(this.deleteTodo);
         this.addToHistory(action);
         this.onStateChange();
       })
-      .catch((err) => showSnackbar(err));
+      .catch(showSnackbar);
   };
 
+  //Used when a user clicks on the select button on a todo
   selectTodoHandler = (id) => {
     this.toggleSelectedTodo(id);
     this.onStateChange();
   };
 
-  updateTodoHandler = (todos, action) => {
-    const todoList = helperFunctions.convertToList(todos);
-    this.server.updateTodo(todoList).then(() => {
-      helperFunctions.makeCopy(todoList).forEach(this.updateTodo);
-      this.addToHistory(action);
-      this.onStateChange();
-    });
+  //Used when a user edits a todo
+  updateTodoHandler = (updatedTodo, action) => {
+    this.server
+      .updateTodo(updatedTodo)
+      .then(() => {
+        helperFunctions.convertToList(updatedTodo).forEach(this.updateTodo);
+        this.addToHistory(action);
+        this.onStateChange();
+      })
+      .catch(showSnackbar);
   };
 
+  //Used when a user completes/uncompletes a todo
   completeTodoHandler = (id) => {
     const oldTodo = this.findTodoById(id);
     const updatedTodo = helperFunctions.makeCopy(oldTodo);
@@ -300,23 +292,21 @@ export class Model {
     this.server
       .updateTodo(updatedTodo)
       .then(() => {
-        helperFunctions
-          .convertToList(helperFunctions.makeCopy(updatedTodo))
-          .forEach(this.updateTodo);
+        helperFunctions.convertToList(updatedTodo).forEach(this.updateTodo);
         this.addToHistory(action);
         this.onStateChange();
       })
-      .catch((err) => showSnackbar(err));
+      .catch(showSnackbar);
   };
 
+  //Initialize local array of todo, by syncing it with server.
+  //Only done once through constructor.
   initialize = () => {
     return this.server
       .getDatabase()
       .then((serverDatabase) => {
         serverDatabase.forEach(this.addTodo);
       })
-      .catch((err) => {
-        showSnackbar(err);
-      });
+      .catch(showSnackbar);
   };
 }

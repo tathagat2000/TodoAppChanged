@@ -1,5 +1,4 @@
-import { updateHeaderDate } from "./updateHeaderDate.js";
-import { Page } from "./Page.js";
+import { View } from "./View.js";
 import { Model } from "./Model.js";
 import { helperFunctions } from "./helperFunctions.js";
 import { dataAttributes } from "./constants.js";
@@ -9,7 +8,7 @@ import { defaultValue } from "./constants.js";
 export class Controller {
   constructor() {
     this.model = new Model(this.onStateChange);
-    this.page = new Page();
+    this.view = new View();
     this.initialize();
   }
 
@@ -17,7 +16,7 @@ export class Controller {
     const todoEventHandler = this.todoEventHandler;
     const todoList = this.model.getFilteredTodos();
     const selectedTodoIds = this.model.getSelectedTodoIds();
-    this.page.render(todoEventHandler, todoList, selectedTodoIds);
+    this.view.render(todoEventHandler, todoList, selectedTodoIds);
   };
 
   todoEventHandler = (event) => {
@@ -52,7 +51,7 @@ export class Controller {
     if (buttonClicked) {
       this.model.filter.toggleFilterState(buttonClicked.id);
       this.onStateChange();
-      this.page.changeLogoStyle(
+      this.view.changeLogoStyle(
         buttonClicked,
         this.model.filter.getFilterState()
       );
@@ -73,7 +72,7 @@ export class Controller {
 
   bulkDeleteHandler = () => {
     const todosToBeDeleted = this.model.getSelectedTodos();
-    const event = helperFunctions.createAction(
+    const action = helperFunctions.createAction(
       actionType.DELETE,
       todosToBeDeleted,
       todosToBeDeleted
@@ -81,16 +80,16 @@ export class Controller {
     if (todosToBeDeleted.length === 0) {
       return;
     }
-    this.model.bulkDelete(event, todosToBeDeleted);
+    this.model.bulkDelete(action, todosToBeDeleted);
   };
 
   bulkUpdateHandler = (isCompleted) => {
     const todosBeforeUpdating = this.model.getSelectedTodos();
     const todosAfterUpdating = this.model.getSelectedTodos().map((todo) => {
-      todo.isCompleted = isCompleted;
-      return todo;
+      const todoCopy = { ...todo, isCompleted };
+      return todoCopy;
     });
-    const event = helperFunctions.createAction(
+    const action = helperFunctions.createAction(
       actionType.UPDATE,
       todosBeforeUpdating,
       todosAfterUpdating
@@ -98,15 +97,15 @@ export class Controller {
     if (todosBeforeUpdating.length === 0) {
       return;
     }
-    this.model.bulkUpdate(event, todosAfterUpdating);
+    this.model.bulkUpdate(action, todosAfterUpdating);
   };
 
-  eventHandlerForCreatingNewTodo = (event, text, urgency, category) => {
+  createTodoEventHandler = (event, text, urgency, category) => {
     const key = event.keyCode || event.which || 0;
     if (key === 13 && text) {
       const todo = this.createTodoObject(text, urgency, category);
       this.model.addNewTodo(todo);
-      this.page.resetTodoInputValues();
+      this.view.resetTodoInputValues();
     }
   };
 
@@ -129,7 +128,7 @@ export class Controller {
     const urgency = this.model.getCurrentTodoData(id, "urgency");
     const category = this.model.getCurrentTodoData(id, "category");
 
-    this.page.modal.show(text, urgency, category, id);
+    this.view.modal.show(text, urgency, category, id);
   };
 
   updateTodoHandler = (updatedText, updatedUrgency, updatedCategory, id) => {
@@ -148,17 +147,15 @@ export class Controller {
   };
 
   initialize = () => {
-    updateHeaderDate();
-    this.page.addFilterEventListener(this.filterEventHandler);
-    this.page.addHistoryEventListener(this.undoAndRedoEventHandler);
-    this.page.addBulkEventListeners(
+    this.view.updateHeaderDate();
+    this.view.addFilterEventListener(this.filterEventHandler);
+    this.view.addHistoryEventListener(this.undoAndRedoEventHandler);
+    this.view.addBulkEventListeners(
       this.bulkUpdateHandler,
       this.bulkDeleteHandler
     );
-    this.page.addEventListenerForCreatingNewTodo(
-      this.eventHandlerForCreatingNewTodo
-    );
-    this.page.modal.addEventListenerToSave(this.updateTodoHandler);
-    this.page.modal.addEventListenerToClose();
+    this.view.addEventListenerForCreatingNewTodo(this.createTodoEventHandler);
+    this.view.modal.addEventListenerToSave(this.updateTodoHandler);
+    this.view.modal.addEventListenerToClose();
   };
 }

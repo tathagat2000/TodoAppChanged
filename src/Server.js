@@ -17,7 +17,7 @@ export class Server {
   getDatabase = () => {
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
-        resolve(helperFunctions.makeCopyOfListOfObjects(this.database));
+        resolve(helperFunctions.makeCopy(this.database));
       } else {
         reject("Please Refresh Again");
       }
@@ -30,14 +30,23 @@ export class Server {
   loadDatabaseFromLocalStorage = () =>
     JSON.parse(localStorage.getItem("todos")) || [];
 
-  findIndexOfTodoBasedOnId = (id) =>
+  findIndexOfTodoById = (id) =>
     this.database.findIndex((todo) => todo.id === id);
 
-  createTodo = (listOfTodos) => {
+  convertToList = (todos) => {
+    if (Array.isArray(todos)) {
+      return todos;
+    } else {
+      return [todos];
+    }
+  };
+
+  createTodo = (todos) => {
+    const todoList = this.convertToList(todos);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
-        const copyOfListOfTodos = listOfTodos.map((todo) => ({ ...todo }));
-        this.database = [...this.database, ...copyOfListOfTodos];
+        const todoListCopy = helperFunctions.makeCopy(todoList);
+        this.database = [...this.database, ...todoListCopy];
         this.saveDatabaseInLocalStorage();
         resolve("done");
       } else {
@@ -46,12 +55,13 @@ export class Server {
     });
   };
 
-  deleteTodo = (listOfTodos) => {
-    const listOfTodoIds = listOfTodos.map((todo) => todo.id);
+  deleteTodo = (todos) => {
+    const todoList = this.convertToList(todos);
+    const todoIdsList = todoList.map((todo) => todo.id);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
         this.database = this.database.filter(
-          (todo) => !listOfTodoIds.includes(todo.id)
+          (todo) => !todoIdsList.includes(todo.id)
         );
         this.saveDatabaseInLocalStorage();
         resolve("done");
@@ -61,13 +71,14 @@ export class Server {
     });
   };
 
-  updateTodo = (listOfTodos) => {
+  updateTodo = (todos) => {
+    const todoList = this.convertToList(todos);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
         const databaseCopy = this.database.slice(0);
-        listOfTodos.forEach((todo) => {
-          const idx = this.findIndexOfTodoBasedOnId(todo.id);
-          databaseCopy[idx] = { ...todo };
+        todoList.forEach((todo) => {
+          const index = this.findIndexOfTodoById(todo.id);
+          databaseCopy[index] = { ...todo };
         });
         this.database = databaseCopy;
         this.saveDatabaseInLocalStorage();

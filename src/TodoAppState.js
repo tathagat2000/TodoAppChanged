@@ -1,21 +1,47 @@
-import { CONSTANTS } from "./constants.js";
 import { updateHeaderDate } from "./updateHeaderDate.js";
 import { Page } from "./Page.js";
 import { Model } from "./Model.js";
 import { helperFunctions } from "./helperFunctions.js";
+import { dataAttributes } from "./constants.js";
+import { actionType } from "./constants.js";
+import { defaultValue } from "./constants.js";
 
 export class Controller {
   constructor() {
-    this.model = new Model(this.render);
+    this.model = new Model(this.onStateChange);
     this.page = new Page();
     this.initialize();
   }
 
-  render = () => {
+  onStateChange = () => {
     const todoEventHandler = this.todoEventHandler;
-    const listOfTodos = this.model.getFilteredTodos();
-    const selectedTodoIds = this.model.interface.getSelectedTodoIds();
-    this.page.render(todoEventHandler, listOfTodos, selectedTodoIds);
+    const todoList = this.model.getFilteredTodos();
+    const selectedTodoIds = this.model.getSelectedTodoIds();
+    this.page.render(todoEventHandler, todoList, selectedTodoIds);
+  };
+
+  todoEventHandler = (event) => {
+    const id = helperFunctions.getTodoIdFromEventPath(event.path);
+
+    const button = helperFunctions.findButtonClickedOnTodo(event.path);
+
+    switch (button?.dataset?.button) {
+      case dataAttributes.COMPLETE_BUTTON:
+        this.model.completeTodoHandler(id);
+        break;
+
+      case dataAttributes.SELECT_BUTTON:
+        this.model.selectTodoHandler(id);
+        break;
+
+      case dataAttributes.EDIT_BUTTON:
+        this.editTodoHandler(id);
+        break;
+
+      case dataAttributes.DELETE_BUTTON:
+        this.model.deleteTodoHandler(id);
+        break;
+    }
   };
 
   filterEventHandler = (event) => {
@@ -25,7 +51,7 @@ export class Controller {
 
     if (buttonClicked) {
       this.model.filter.toggleFilterState(buttonClicked.id);
-      this.render();
+      this.onStateChange();
       this.page.changeLogoStyle(
         buttonClicked,
         this.model.filter.getFilterState()
@@ -46,43 +72,49 @@ export class Controller {
   };
 
   bulkDeleteHandler = () => {
-    const listOfTodosToBeDeleted = this.model.interface.getSelectedTodos();
-    const event = helperFunctions.createEvent(
-      "delete",
-      listOfTodosToBeDeleted,
-      listOfTodosToBeDeleted
+    const todosToBeDeleted = this.model.getSelectedTodos();
+    const event = helperFunctions.createAction(
+      actionType.DELETE,
+      todosToBeDeleted,
+      todosToBeDeleted
     );
-    if (listOfTodosToBeDeleted === 0) return;
-    this.model.bulkDelete(event, listOfTodosToBeDeleted);
+    if (todosToBeDeleted.length === 0) {
+      return;
+    }
+    this.model.bulkDelete(event, todosToBeDeleted);
   };
 
   bulkUpdateHandler = (isCompleted) => {
-    const listOfTodosBeforeUpdating = this.model.interface.getSelectedTodos();
-    const listOfTodosAfterUpdating = this.model.interface
-      .getSelectedTodos()
-      .map((todo) => {
-        todo.isCompleted = isCompleted;
-        return todo;
-      });
-    const event = helperFunctions.createEvent(
-      "update",
-      listOfTodosBeforeUpdating,
-      listOfTodosAfterUpdating
+    const todosBeforeUpdating = this.model.getSelectedTodos();
+    const todosAfterUpdating = this.model.getSelectedTodos().map((todo) => {
+      todo.isCompleted = isCompleted;
+      return todo;
+    });
+    const event = helperFunctions.createAction(
+      actionType.UPDATE,
+      todosBeforeUpdating,
+      todosAfterUpdating
     );
-    if (listOfTodosBeforeUpdating === 0) return;
-    this.model.bulkUpdate(event, listOfTodosAfterUpdating);
+    if (todosBeforeUpdating.length === 0) {
+      return;
+    }
+    this.model.bulkUpdate(event, todosAfterUpdating);
   };
 
   eventHandlerForCreatingNewTodo = (event, text, urgency, category) => {
     const key = event.keyCode || event.which || 0;
     if (key === 13 && text) {
-      const newTodoObject = this.createTodoObject(text, urgency, category);
-      this.model.addNewTodo(newTodoObject);
+      const todo = this.createTodoObject(text, urgency, category);
+      this.model.addNewTodo(todo);
       this.page.resetTodoInputValues();
     }
   };
 
-  createTodoObject = (text, urgency, category) => {
+  createTodoObject = (
+    text,
+    urgency = defaultValue.URGENCY,
+    category = defaultValue.CATEGORY
+  ) => {
     return {
       text,
       urgency,
@@ -92,55 +124,27 @@ export class Controller {
     };
   };
 
-  todoEventHandler = (event) => {
-    const id = helperFunctions.getTodoIdFromEventPath(event.path);
-
-    const button = helperFunctions.findButtonClickedOnTodo(event.path);
-
-    switch (button?.dataset?.button) {
-      case CONSTANTS.dataAttributes.COMPLETEBUTTON:
-        this.model.completeTodoHandler(id);
-        break;
-
-      case CONSTANTS.dataAttributes.SELECTBUTTON:
-        this.model.selectTodoHandler(id);
-        break;
-
-      case CONSTANTS.dataAttributes.EDITBUTTON:
-        this.editTodoHandler(id);
-        break;
-
-      case CONSTANTS.dataAttributes.DELETEBUTTON:
-        this.model.deleteTodoHandler(id);
-        break;
-
-      default:
-        break;
-    }
-  };
-
   editTodoHandler = (id) => {
-    const text = this.model.interface.getCurrentTodoData(id, "text");
-    const urgency = this.model.interface.getCurrentTodoData(id, "urgency");
-    const category = this.model.interface.getCurrentTodoData(id, "category");
+    const text = this.model.getCurrentTodoData(id, "text");
+    const urgency = this.model.getCurrentTodoData(id, "urgency");
+    const category = this.model.getCurrentTodoData(id, "category");
 
     this.page.modal.show(text, urgency, category, id);
   };
 
   updateTodoHandler = (updatedText, updatedUrgency, updatedCategory, id) => {
-    const todoBeforeUpdating = this.model.interface.findTodoBasedOnId(id);
-    const todoListBeforeUpdating = [todoBeforeUpdating];
-    const updatedTodo = { ...todoBeforeUpdating };
+    const oldTodo = this.model.findTodoById(id);
+    const updatedTodo = { ...oldTodo };
     updatedTodo.text = updatedText;
     updatedTodo.urgency = updatedUrgency;
     updatedTodo.category = updatedCategory;
-    const todoListAfterUpdating = [updatedTodo];
-    const event = helperFunctions.createEvent(
-      "update",
-      todoListBeforeUpdating,
-      todoListBeforeUpdating
+
+    const event = helperFunctions.createAction(
+      actionType.UPDATE,
+      oldTodo,
+      updatedTodo
     );
-    this.model.updateTodoHandler(todoListAfterUpdating, event);
+    this.model.updateTodoHandler(updatedTodo, event);
   };
 
   initialize = () => {

@@ -1,49 +1,47 @@
 import { updateAnalytics } from "./analytics.js";
 import { iconClasses, createTodoElement } from "./todoElement.js";
-import { CONSTANTS } from "./constants.js";
 import { Modal } from "./Modal.js";
+import { dataAttributes } from "./constants.js";
+import { filterIdToValue } from "./constants.js";
 
 const setTodoText = (element, textValue) => {
   element.querySelector(
-    `[data-type=${CONSTANTS.dataAttributes.TEXT}]`
+    `[data-type=${dataAttributes.TEXT}]`
   ).innerHTML = textValue;
 };
 
 const setTodoUrgency = (element, urgencyValue) => {
-  element.querySelector(
-    `[data-type=${CONSTANTS.dataAttributes.URGENCYICON}]`
-  ).className = "";
+  element.querySelector(`[data-type=${dataAttributes.URGENCYICON}]`).className =
+    "";
   element
-    .querySelector(`[data-type=${CONSTANTS.dataAttributes.URGENCYICON}]`)
+    .querySelector(`[data-type=${dataAttributes.URGENCYICON}]`)
     .classList.add(...iconClasses[urgencyValue]);
 };
 
 const setTodoCategory = (element, categoryValue) => {
   element.querySelector(
-    `[data-type=${CONSTANTS.dataAttributes.CATEGORYICON}]`
+    `[data-type=${dataAttributes.CATEGORYICON}]`
   ).className = "";
 
   element
-    .querySelector(`[data-type=${CONSTANTS.dataAttributes.CATEGORYICON}]`)
+    .querySelector(`[data-type=${dataAttributes.CATEGORYICON}]`)
     .classList.add(...iconClasses[categoryValue]);
 };
 
 const setTodoTime = (element, time) => {
-  element.querySelector(
-    `[data-type=${CONSTANTS.dataAttributes.TIME}]`
-  ).innerHTML = time;
+  element.querySelector(`[data-type=${dataAttributes.TIME}]`).innerHTML = time;
 };
 
 const setIsCompleted = (element, completed) => {
   if (completed) {
     element.classList.add("opacity");
     element.querySelector(
-      `[data-button=${CONSTANTS.dataAttributes.COMPLETEBUTTON}]`
+      `[data-button=${dataAttributes.COMPLETE_BUTTON}]`
     ).innerHTML = "Completed. Undo?";
   } else {
     element.classList.remove("opacity");
     element.querySelector(
-      `[data-button=${CONSTANTS.dataAttributes.COMPLETEBUTTON}]`
+      `[data-button=${dataAttributes.COMPLETE_BUTTON}]`
     ).innerHTML = "Mark Complete";
   }
 };
@@ -52,12 +50,12 @@ const setIsSelected = (element, isElementSelected) => {
   if (isElementSelected) {
     element.classList.add("selected");
     element.querySelector(
-      `[data-button=${CONSTANTS.dataAttributes.SELECTBUTTON}]`
+      `[data-button=${dataAttributes.SELECT_BUTTON}]`
     ).style.backgroundColor = "red";
   } else {
     element.classList.remove("selected");
     element.querySelector(
-      `[data-button=${CONSTANTS.dataAttributes.SELECTBUTTON}]`
+      `[data-button=${dataAttributes.SELECT_BUTTON}]`
     ).style.backgroundColor = "white";
   }
 };
@@ -95,9 +93,9 @@ export class Page {
   constructor() {
     this.modal = new Modal();
   }
-  render = (todoEventHandler, listOfTodos, selectedTodoIds) => {
+  render = (todoEventHandler, todoList, selectedTodoIds) => {
     clearAllTodosFromPage();
-    listOfTodos.forEach((todo) => {
+    todoList.forEach((todo) => {
       const element = createTodoElement();
       const isElementSelected = selectedTodoIds.includes(todo.id);
       setValuesOnTodo(element, todo, isElementSelected);
@@ -105,7 +103,7 @@ export class Page {
       addTodoToPage(element);
     });
 
-    updateAnalytics(listOfTodos);
+    updateAnalytics(todoList);
   };
 
   resetTodoInputValues = () => {
@@ -115,7 +113,7 @@ export class Page {
   };
 
   changeLogoStyle = (button, filterState) => {
-    if (filterState[CONSTANTS.mapFilterIdToValue[button.id]]) {
+    if (filterState[filterIdToValue[button.id]]) {
       button.style.fontSize = "35px";
     } else {
       button.style.fontSize = "20px";

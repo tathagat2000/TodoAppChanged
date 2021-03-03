@@ -1,4 +1,4 @@
-import { CONSTANTS } from "./constants.js";
+import { dataAttributes } from "./constants.js";
 
 const initializeTodoElement = () => {
   const editIcon = {
@@ -18,7 +18,7 @@ const initializeTodoElement = () => {
     classes: ["edit"],
     children: [editIcon],
     properties: {
-      "data-button": CONSTANTS.dataAttributes.EDITBUTTON,
+      "data-button": dataAttributes.EDIT_BUTTON,
     },
   };
 
@@ -27,7 +27,7 @@ const initializeTodoElement = () => {
     classes: ["delete"],
     children: [deleteIcon],
     properties: {
-      "data-button": CONSTANTS.dataAttributes.DELETEBUTTON,
+      "data-button": dataAttributes.DELETE_BUTTON,
     },
   };
 
@@ -42,7 +42,7 @@ const initializeTodoElement = () => {
     classes: ["todoText"],
     children: [],
     properties: {
-      "data-type": CONSTANTS.dataAttributes.TEXT,
+      "data-type": dataAttributes.TEXT,
     },
   };
 
@@ -51,7 +51,7 @@ const initializeTodoElement = () => {
     classes: ["time"],
     children: [],
     properties: {
-      "data-type": CONSTANTS.dataAttributes.TIME,
+      "data-type": dataAttributes.TIME,
     },
   };
 
@@ -60,7 +60,7 @@ const initializeTodoElement = () => {
     classes: [],
     children: [],
     properties: {
-      "data-type": CONSTANTS.dataAttributes.URGENCYICON,
+      "data-type": dataAttributes.URGENCYICON,
     },
   };
 
@@ -69,7 +69,7 @@ const initializeTodoElement = () => {
     classes: [],
     children: [],
     properties: {
-      "data-type": CONSTANTS.dataAttributes.CATEGORYICON,
+      "data-type": dataAttributes.CATEGORYICON,
     },
   };
 
@@ -85,7 +85,7 @@ const initializeTodoElement = () => {
     children: [],
     properties: {
       innerHTML: "Mark Complete",
-      "data-button": CONSTANTS.dataAttributes.COMPLETEBUTTON,
+      "data-button": dataAttributes.COMPLETE_BUTTON,
     },
   };
 
@@ -100,7 +100,7 @@ const initializeTodoElement = () => {
     classes: ["notSelect"],
     children: [],
     properties: {
-      "data-button": CONSTANTS.dataAttributes.SELECTBUTTON,
+      "data-button": dataAttributes.SELECT_BUTTON,
     },
   };
 
@@ -117,9 +117,10 @@ const addClassesToElement = (newElement, element) =>
   newElement.classList.add(...element.classes);
 
 const addPropertiesToElement = (newElement, element) => {
-  for (const property in element.properties) {
-    const value = element.properties[property];
-    newElement.setAttribute(property, value);
+  if (element.properties) {
+    Object.entries(element.properties).forEach(([property, value]) => {
+      newElement.setAttribute(property, value);
+    });
   }
 };
 

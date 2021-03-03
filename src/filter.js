@@ -1,4 +1,6 @@
-import { CONSTANTS } from "./constants.js";
+import { filterIdToValue } from "./constants.js";
+import { valueToFilter } from "./constants.js";
+
 export class Filter {
   constructor() {
     this.state = {
@@ -11,17 +13,15 @@ export class Filter {
     };
   }
 
-  getFilterState = () => {
-    return { ...this.state };
-  };
+  getFilterState = () => this.state;
 
   toggleFilterState = (buttonId) => {
-    const copyOfFilterState = { ...this.state };
-    copyOfFilterState[
-      CONSTANTS.mapFilterIdToValue[buttonId]
-    ] = !copyOfFilterState[CONSTANTS.mapFilterIdToValue[buttonId]];
+    const filterStateCopy = { ...this.state };
+    filterStateCopy[filterIdToValue[buttonId]] = !filterStateCopy[
+      filterIdToValue[buttonId]
+    ];
 
-    this.state = copyOfFilterState;
+    this.state = filterStateCopy;
   };
 
   computeUrgencyFilterValue = () => {
@@ -32,24 +32,24 @@ export class Filter {
     return this.state.personal || this.state.academic || this.state.social;
   };
 
-  filterAccordingToUrgencyAndCategory = (listOfTodos) => {
-    return listOfTodos.filter((todo) => {
+  filterAccordingToUrgencyAndCategory = (todoList) => {
+    return todoList.filter((todo) => {
       return (
-        this.state[CONSTANTS.mapValueToFilter[todo.urgency]] ||
-        this.state[CONSTANTS.mapValueToFilter[todo.category]]
+        this.state[valueToFilter[todo.urgency]] ||
+        this.state[valueToFilter[todo.category]]
       );
     });
   };
 
-  filterTodos = (listOfTodos) => {
+  filterTodos = (todoList) => {
     const urgencyFilter = this.computeUrgencyFilterValue();
 
     const categoryFilter = this.computeCategoryFilterValue();
-
+    // Double equal used purposefully as if value is false/true then it is to be converted to boolean
     if (urgencyFilter == 0 && categoryFilter == 0) {
-      return listOfTodos;
+      return todoList;
     }
 
-    return this.filterAccordingToUrgencyAndCategory(listOfTodos);
+    return this.filterAccordingToUrgencyAndCategory(todoList);
   };
 }

@@ -1,6 +1,14 @@
-import { CONSTANTS } from "./constants.js";
+import { dataAttributes } from "./constants.js";
 
-const helperFunctions = {
+const convertToList = (todos) => {
+  if (Array.isArray(todos)) {
+    return todos;
+  } else {
+    return [todos];
+  }
+};
+
+export const helperFunctions = {
   getTime: () => {
     const date = new Date().toLocaleDateString();
     const time = new Date().toLocaleTimeString();
@@ -8,34 +16,31 @@ const helperFunctions = {
     return date + ", " + time;
   },
 
-  resetTodoInputValues: () => {
-    document.querySelector("#addTodo").value = "";
-    document.querySelector("#urgency").selectedIndex = 0;
-    document.querySelector("#category").selectedIndex = 0;
-  },
-
-  createEvent: (type, todoObjectListBefore, todoObjectListAfter) => {
+  createAction: (type, todosBeforeUpdate, todosAfterUpdate) => {
     return {
       operationType: type,
-      todoObjectListBefore: todoObjectListBefore.map((todo) => ({ ...todo })),
-      todoObjectListAfter: todoObjectListAfter.map((todo) => ({ ...todo })),
+      todoListBeforeUpdate: convertToList(todosBeforeUpdate).map((todo) => ({
+        ...todo,
+      })),
+      todoListAfterUpdate: convertToList(todosAfterUpdate).map((todo) => ({
+        ...todo,
+      })),
     };
   },
 
   getTodoIdFromEventPath: (eventPath) => {
-    for (const element of eventPath) {
-      if (element.classList?.contains("todo")) {
-        return Number(element.id);
-      }
-    }
+    const todoElement = eventPath.find((element) => {
+      return element.classList?.contains("todo");
+    });
+    return Number(todoElement.id);
   },
 
   findButtonClickedOnTodo: (eventPath) => {
     const allButtons = [
-      CONSTANTS.dataAttributes.COMPLETEBUTTON,
-      CONSTANTS.dataAttributes.SELECTBUTTON,
-      CONSTANTS.dataAttributes.EDITBUTTON,
-      CONSTANTS.dataAttributes.DELETEBUTTON,
+      dataAttributes.COMPLETE_BUTTON,
+      dataAttributes.SELECT_BUTTON,
+      dataAttributes.EDIT_BUTTON,
+      dataAttributes.DELETE_BUTTON,
     ];
 
     return eventPath.find((element) => {
@@ -43,11 +48,15 @@ const helperFunctions = {
     });
   },
 
-  makeCopyOfObject: (obj) => ({ ...obj }),
+  //Makes copy of an object, or list of objects
+  makeCopy: (item) => {
+    //If it is an array
+    if (Array.isArray(item)) {
+      return item.map((obj) => ({ ...obj }));
+    }
+    // Else if it is an object
+    else {
+      return { ...item };
+    }
+  },
 };
-
-helperFunctions.makeCopyOfListOfObjects = (list) => {
-  return list.map(helperFunctions.makeCopyOfObject);
-};
-
-export { helperFunctions };

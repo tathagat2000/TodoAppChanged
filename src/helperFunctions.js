@@ -1,14 +1,14 @@
 import { dataAttributes } from "./constants.js";
 
-const convertToList = (todos) => {
-  if (Array.isArray(todos)) {
-    return todos;
+const convertToList = (object) => {
+  if (Array.isArray(object)) {
+    return object;
   } else {
-    return [todos];
+    return [object];
   }
 };
 
-export const helperFunctions = {
+const helperFunctions = {
   getTime: () => {
     const date = new Date().toLocaleDateString();
     const time = new Date().toLocaleTimeString();
@@ -60,3 +60,6 @@ export const helperFunctions = {
     }
   },
 };
+
+helperFunctions.convertToList = convertToList;
+export { helperFunctions };

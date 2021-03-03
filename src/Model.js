@@ -203,21 +203,13 @@ export class Model {
     }
   };
 
-  convertToList = (todos) => {
-    if (Array.isArray(todos)) {
-      return todos;
-    } else {
-      return [todos];
-    }
-  };
-
   getFilteredTodos = () => {
     const todoList = this.getTodos();
     return this.filter.filterTodos(todoList);
   };
 
   bulkDelete = (action, todos) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     this.server
       .deleteTodo(todoList)
       .then(() => {
@@ -230,7 +222,7 @@ export class Model {
   };
 
   bulkUpdate = (action, todos) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     this.server
       .updateTodo(todoList)
       .then(() => {
@@ -247,7 +239,7 @@ export class Model {
   addNewTodo = (todo) => {
     todo = { id: this.currentTodoId, ...todo };
     this.incrementCurrentTodoId();
-    const todoList = this.convertToList(todo);
+    const todoList = helperFunctions.convertToList(todo);
 
     const action = helperFunctions.createAction(
       actionType.CREATE,
@@ -266,7 +258,7 @@ export class Model {
 
   deleteTodoHandler = (id) => {
     const todo = this.findTodoById(id);
-    const todoList = this.convertToList(todo);
+    const todoList = helperFunctions.convertToList(todo);
     const action = helperFunctions.createAction(
       actionType.DELETE,
       todoList,
@@ -288,7 +280,7 @@ export class Model {
   };
 
   updateTodoHandler = (todos, action) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     this.server.updateTodo(todoList).then(() => {
       helperFunctions.makeCopy(todoList).forEach(this.updateTodo);
       this.addToHistory(action);
@@ -297,20 +289,20 @@ export class Model {
   };
 
   completeTodoHandler = (id) => {
-    const todo = this.findTodoById(id);
-    const todoListBeforeUpdate = this.convertToList(todo);
-    const updatedTodo = helperFunctions.makeCopy(todo);
+    const oldTodo = this.findTodoById(id);
+    const updatedTodo = helperFunctions.makeCopy(oldTodo);
     updatedTodo.isCompleted = !updatedTodo.isCompleted;
-    const todoListAfterUpdate = this.convertToList(updatedTodo);
     const action = helperFunctions.createAction(
       actionType.UPDATE,
-      todoListBeforeUpdate,
-      todoListAfterUpdate
+      oldTodo,
+      updatedTodo
     );
     this.server
-      .updateTodo(todoListAfterUpdate)
+      .updateTodo(updatedTodo)
       .then(() => {
-        helperFunctions.makeCopy(todoListAfterUpdate).forEach(this.updateTodo);
+        helperFunctions
+          .convertToList(helperFunctions.makeCopy(updatedTodo))
+          .forEach(this.updateTodo);
         this.addToHistory(action);
         this.onStateChange();
       })

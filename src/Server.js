@@ -33,16 +33,8 @@ export class Server {
   findIndexOfTodoById = (id) =>
     this.database.findIndex((todo) => todo.id === id);
 
-  convertToList = (todos) => {
-    if (Array.isArray(todos)) {
-      return todos;
-    } else {
-      return [todos];
-    }
-  };
-
   createTodo = (todos) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
         const todoListCopy = helperFunctions.makeCopy(todoList);
@@ -56,7 +48,7 @@ export class Server {
   };
 
   deleteTodo = (todos) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     const todoIdsList = todoList.map((todo) => todo.id);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
@@ -72,7 +64,7 @@ export class Server {
   };
 
   updateTodo = (todos) => {
-    const todoList = this.convertToList(todos);
+    const todoList = helperFunctions.convertToList(todos);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
         const databaseCopy = this.database.slice(0);

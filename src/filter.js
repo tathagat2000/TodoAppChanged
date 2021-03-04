@@ -1,5 +1,4 @@
-import { filterIdToValue } from "./constants.js";
-import { valueToFilter } from "./constants.js";
+import { filterIdToValue, valueToFilter } from "./constants.js";
 
 export class Filter {
   constructor() {

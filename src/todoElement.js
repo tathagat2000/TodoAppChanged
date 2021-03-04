@@ -1,5 +1,4 @@
-import { dataAttributes } from "./constants.js";
-import { valueToFilter } from "./constants.js";
+import { dataAttributes, valueToFilter } from "./constants.js";
 
 const initializeTodoElement = () => {
   const editIcon = {

@@ -1,9 +1,7 @@
 import { View } from "./View.js";
 import { Model } from "./Model.js";
 import { helperFunctions } from "./helperFunctions.js";
-import { dataAttributes } from "./constants.js";
-import { actionType } from "./constants.js";
-import { defaultValue } from "./constants.js";
+import { dataAttributes, actionType, defaultValue } from "./constants.js";
 
 export class Controller {
   constructor() {

@@ -1,8 +1,7 @@
 import { updateAnalytics } from "./analytics.js";
 import { iconClasses, createTodoElement } from "./todoElement.js";
 import { Modal } from "./Modal.js";
-import { dataAttributes } from "./constants.js";
-import { filterIdToValue } from "./constants.js";
+import { dataAttributes, filterIdToValue } from "./constants.js";
 
 const setTodoText = (element, textValue) => {
   element.querySelector(

@@ -19,7 +19,7 @@ export class Model {
     });
   }
 
-  addTodo = (todo) => (this.todos = [...this.todos, todo]);
+  createTodo = (todo) => (this.todos = [...this.todos, todo]);
 
   updateTodo = (todo) => {
     const index = this.findIndexOfTodoById(todo.id);
@@ -37,6 +37,11 @@ export class Model {
   getSelectedTodoIds = () => this.selectedTodoIds;
 
   getSelectedTodos = () => this.selectedTodoIds.map(this.findTodoById);
+
+  getFilteredTodos = () => {
+    const todoList = this.getTodos();
+    return this.filter.filterTodos(todoList);
+  };
 
   findLastTodoId = () => {
     let maximumId = -1;
@@ -78,6 +83,8 @@ export class Model {
   findIndexOfTodoById = (id) => this.todos.findIndex((todo) => todo.id === id);
 
   getCurrentTodoData = (id, type) => this.findTodoById(id)?.[type];
+
+  getCurrentTodoId = () => this.currentTodoId;
 
   incrementCurrentTodoId = () => {
     this.currentTodoId++;
@@ -148,7 +155,7 @@ export class Model {
     this.server
       .createTodo(todoList)
       .then(() => {
-        helperFunctions.makeCopy(todoList).forEach(this.addTodo);
+        helperFunctions.makeCopy(todoList).forEach(this.createTodo);
         this.onStateChange();
         this.changeHistoryIndex(type);
       })
@@ -200,11 +207,6 @@ export class Model {
     }
   };
 
-  getFilteredTodos = () => {
-    const todoList = this.getTodos();
-    return this.filter.filterTodos(todoList);
-  };
-
   //Used for Bulk Operations, where a user selects many todos at once and deletes them
   bulkDelete = (action, todos) => {
     this.server
@@ -232,15 +234,11 @@ export class Model {
   };
 
   //Used for adding a new Todo
-  addNewTodo = (todo) => {
-    todo = { id: this.currentTodoId, ...todo };
-    this.incrementCurrentTodoId();
-
-    const action = helperFunctions.createAction(actionType.CREATE, todo, todo);
+  addNewTodo = (todo, action) => {
     this.server
       .createTodo(todo)
       .then(() => {
-        helperFunctions.convertToList(todo).forEach(this.addTodo);
+        helperFunctions.convertToList(todo).forEach(this.createTodo);
         this.addToHistory(action);
         this.onStateChange();
       })
@@ -248,9 +246,7 @@ export class Model {
   };
 
   //Used when a user deletes a todo
-  deleteTodoHandler = (id) => {
-    const todo = this.findTodoById(id);
-    const action = helperFunctions.createAction(actionType.DELETE, todo, todo);
+  deleteTodoHandler = (todo, action) => {
     this.server
       .deleteTodo(todo)
       .then(() => {
@@ -280,15 +276,7 @@ export class Model {
   };
 
   //Used when a user completes/uncompletes a todo
-  completeTodoHandler = (id) => {
-    const oldTodo = this.findTodoById(id);
-    const updatedTodo = helperFunctions.makeCopy(oldTodo);
-    updatedTodo.isCompleted = !updatedTodo.isCompleted;
-    const action = helperFunctions.createAction(
-      actionType.UPDATE,
-      oldTodo,
-      updatedTodo
-    );
+  completeTodoHandler = (updatedTodo, action) => {
     this.server
       .updateTodo(updatedTodo)
       .then(() => {
@@ -305,7 +293,7 @@ export class Model {
     return this.server
       .getDatabase()
       .then((serverDatabase) => {
-        serverDatabase.forEach(this.addTodo);
+        serverDatabase.forEach(this.createTodo);
       })
       .catch(showSnackbar);
   };

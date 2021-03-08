@@ -2,6 +2,7 @@ import { updateAnalytics } from "./analytics.js";
 import { iconClasses, createTodoElement } from "./todoElement.js";
 import { Modal } from "./Modal.js";
 import { dataAttributes, filterIdToValue } from "./constants.js";
+import { helperFunctions } from "./helperFunctions.js";
 
 const setTodoText = (element, textValue) => {
   element.querySelector(
@@ -89,9 +90,9 @@ const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 const readTodoCategoryValue = () => document.querySelector("#category").value;
 
 export class View {
-  constructor(todoEventHandler) {
+  constructor(callbacks) {
     this.modal = new Modal();
-    this.todoEventHandler = todoEventHandler;
+    this.callbacks = callbacks;
   }
   render = (todoList, selectedTodoIds) => {
     clearAllTodos();
@@ -104,6 +105,30 @@ export class View {
     });
 
     updateAnalytics(todoList);
+  };
+
+  todoEventHandler = (event) => {
+    const id = helperFunctions.getTodoIdFromEventPath(event.path);
+
+    const button = helperFunctions.findButtonClickedOnTodo(event.path);
+
+    switch (button?.dataset?.button) {
+      case dataAttributes.COMPLETE_BUTTON:
+        this.callbacks.completeTodo(id);
+        break;
+
+      case dataAttributes.SELECT_BUTTON:
+        this.callbacks.selectTodo(id);
+        break;
+
+      case dataAttributes.EDIT_BUTTON:
+        this.callbacks.editTodo(id);
+        break;
+
+      case dataAttributes.DELETE_BUTTON:
+        this.callbacks.deleteTodo(id);
+        break;
+    }
   };
 
   resetTodoInputValues = () => {
@@ -125,14 +150,35 @@ export class View {
     document.querySelector("#date").innerHTML = currentDate;
   };
 
-  addFilterEventListener = (filterEventHandler) => {
-    document
-      .querySelector("#logos")
-      .addEventListener("click", filterEventHandler);
+  showEditWindow = (text, urgency, category, id) =>
+    this.modal.show(text, urgency, category, id);
+
+  addEventListenerForModal = (saveEventHandler) => {
+    this.modal.addEventListenerToSave(saveEventHandler);
+    this.modal.addEventListenerToClose();
   };
 
-  addHistoryEventListener = (undoAndRedoEventHandler) => {
-    document.addEventListener("keydown", undoAndRedoEventHandler);
+  addFilterEventListener = (filterEventHandler) => {
+    document.querySelector("#logos").addEventListener("click", (event) => {
+      const buttonClicked = event.path.find(
+        (element) => element.tagName === "BUTTON"
+      );
+      filterEventHandler(buttonClicked);
+    });
+  };
+
+  addUndoRedoEventListener = (undoHandler, redoHandler) => {
+    document.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+        undoHandler();
+      } else if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "y"
+      ) {
+        redoHandler();
+        event.preventDefault();
+      }
+    });
   };
 
   addBulkEventListeners = (bulkUpdateEventHandler, bulkDeleteEventHandler) => {
@@ -158,13 +204,14 @@ export class View {
   addEventListenerForCreatingNewTodo = (createTodoEventHandler) => {
     document
       .querySelector("#createTodo")
-      .addEventListener("keypress", (event) =>
-        createTodoEventHandler(
-          event,
-          readTodoText(),
-          readTodoUrgencyValue(),
-          readTodoCategoryValue()
-        )
-      );
+      .addEventListener("keypress", (event) => {
+        const text = readTodoText();
+        const urgency = readTodoUrgencyValue();
+        const category = readTodoCategoryValue();
+        const key = event.keyCode || event.which || 0;
+        if (key === 13 && text) {
+          createTodoEventHandler(event, text, urgency, category);
+        }
+      });
   };
 }

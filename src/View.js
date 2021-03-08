@@ -163,7 +163,9 @@ export class View {
       const buttonClicked = event.path.find(
         (element) => element.tagName === "BUTTON"
       );
-      filterEventHandler(buttonClicked);
+      if (buttonClicked) {
+        filterEventHandler(buttonClicked);
+      }
     });
   };
 

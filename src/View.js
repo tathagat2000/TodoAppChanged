@@ -89,16 +89,17 @@ const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 const readTodoCategoryValue = () => document.querySelector("#category").value;
 
 export class View {
-  constructor() {
+  constructor(todoEventHandler) {
     this.modal = new Modal();
+    this.todoEventHandler = todoEventHandler;
   }
-  render = (todoEventHandler, todoList, selectedTodoIds) => {
+  render = (todoList, selectedTodoIds) => {
     clearAllTodos();
     todoList.forEach((todo) => {
       const element = createTodoElement();
       const isElementSelected = selectedTodoIds.includes(todo.id);
       setValuesOnTodo(element, todo, isElementSelected);
-      addEventListenerOnTodo(element, todoEventHandler);
+      addEventListenerOnTodo(element, this.todoEventHandler);
       addTodo(element);
     });
 

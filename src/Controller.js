@@ -6,15 +6,14 @@ import { dataAttributes, actionType, defaultValue } from "./constants.js";
 export class Controller {
   constructor() {
     this.model = new Model(this.onStateChange);
-    this.view = new View();
+    this.view = new View(this.todoEventHandler);
     this.initialize();
   }
 
   onStateChange = () => {
-    const todoEventHandler = this.todoEventHandler;
     const todoList = this.model.getFilteredTodos();
     const selectedTodoIds = this.model.getSelectedTodoIds();
-    this.view.render(todoEventHandler, todoList, selectedTodoIds);
+    this.view.render(todoList, selectedTodoIds);
   };
 
   todoEventHandler = (event) => {

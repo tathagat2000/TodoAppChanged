@@ -8,7 +8,7 @@ export class TodoElement {
     this.element = createTodoElement();
     this.todo = todo;
     this.isSelected = isSelected;
-    this.setValuesOnTodo(this.element, this.todo, this.isSelected);
+    this.setValuesOnTodoElement(this.element, this.todo, this.isSelected);
     this.addEventListenerOnTodo(this.element, this.todoEventHandler);
   }
 
@@ -38,30 +38,33 @@ export class TodoElement {
       case dataAttributes.DELETE_BUTTON:
         this.callbacks.deleteTodo(id);
         break;
+
+      default:
+        break;
     }
   };
 
-  setValuesOnTodo = (element, todo, isSelected) => {
-    setTodoText(element, todo.text);
-    setTodoUrgency(element, todo.urgency);
-    setTodoCategory(element, todo.category);
-    setTodoTime(element, todo.time);
-    setIsSelected(element, isSelected);
-    setIsCompleted(element, todo.isCompleted);
-    setTodoId(element, todo.id);
+  setValuesOnTodoElement = (element, todo, isSelected) => {
+    setTodoElementText(element, todo.text);
+    setTodoElementUrgency(element, todo.urgency);
+    setTodoElementCategory(element, todo.category);
+    setTodoElementTime(element, todo.time);
+    setTodoElementSelected(element, isSelected);
+    setTodoElementCompleted(element, todo.isCompleted);
+    setTodoElementId(element, todo.id);
   };
 
   addEventListenerOnTodo = (element, eventHandler) =>
     element.addEventListener("click", eventHandler);
 }
 
-const setTodoText = (element, textValue) => {
+const setTodoElementText = (element, textValue) => {
   element.querySelector(
     `[data-type=${dataAttributes.TEXT}]`
   ).innerHTML = textValue;
 };
 
-const setTodoUrgency = (element, urgencyValue) => {
+const setTodoElementUrgency = (element, urgencyValue) => {
   element.querySelector(`[data-type=${dataAttributes.URGENCYICON}]`).className =
     "";
   element
@@ -69,7 +72,7 @@ const setTodoUrgency = (element, urgencyValue) => {
     .classList.add(...iconClasses[urgencyValue]);
 };
 
-const setTodoCategory = (element, categoryValue) => {
+const setTodoElementCategory = (element, categoryValue) => {
   element.querySelector(
     `[data-type=${dataAttributes.CATEGORYICON}]`
   ).className = "";
@@ -79,11 +82,11 @@ const setTodoCategory = (element, categoryValue) => {
     .classList.add(...iconClasses[categoryValue]);
 };
 
-const setTodoTime = (element, time) => {
+const setTodoElementTime = (element, time) => {
   element.querySelector(`[data-type=${dataAttributes.TIME}]`).innerHTML = time;
 };
 
-const setIsCompleted = (element, completed) => {
+const setTodoElementCompleted = (element, completed) => {
   if (completed) {
     element.classList.add("opacity");
     element.querySelector(
@@ -97,7 +100,7 @@ const setIsCompleted = (element, completed) => {
   }
 };
 
-const setIsSelected = (element, isElementSelected) => {
+const setTodoElementSelected = (element, isElementSelected) => {
   if (isElementSelected) {
     element.classList.add("selected");
     element.querySelector(
@@ -111,6 +114,6 @@ const setIsSelected = (element, isElementSelected) => {
   }
 };
 
-const setTodoId = (element, id) => {
+const setTodoElementId = (element, id) => {
   element.id = id;
 };

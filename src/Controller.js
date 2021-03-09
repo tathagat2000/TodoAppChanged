@@ -5,13 +5,13 @@ import { dataAttributes, actionType, defaultValue } from "./constants.js";
 
 export class Controller {
   constructor() {
-    const callbacks = {
+    const eventHandler = {
       completeTodo: this.completeTodoHandler,
       selectTodo: this.selectTodoHandler,
       deleteTodo: this.deleteTodoHandler,
     };
     this.model = new Model(this.onStateChange);
-    this.view = new View(callbacks);
+    this.view = new View(eventHandler);
     this.initialize();
   }
 
@@ -23,8 +23,7 @@ export class Controller {
 
   completeTodoHandler = (id) => {
     const oldTodo = this.model.findTodoById(id);
-    const updatedTodo = { ...oldTodo };
-    updatedTodo.isCompleted = !updatedTodo.isCompleted;
+    const updatedTodo = { ...oldTodo, isCompleted: !oldTodo.isCompleted };
     const action = helperFunctions.createAction(
       actionType.UPDATE,
       oldTodo,
@@ -113,11 +112,12 @@ export class Controller {
 
   updateTodoHandler = (updatedText, updatedUrgency, updatedCategory, id) => {
     const oldTodo = this.model.findTodoById(id);
-    const updatedTodo = { ...oldTodo };
-    updatedTodo.text = updatedText;
-    updatedTodo.urgency = updatedUrgency;
-    updatedTodo.category = updatedCategory;
-
+    const updatedTodo = {
+      ...oldTodo,
+      text: updatedText,
+      urgency: updatedUrgency,
+      category: updatedCategory,
+    };
     const action = helperFunctions.createAction(
       actionType.UPDATE,
       oldTodo,

@@ -16,15 +16,15 @@ const readTodoUrgencyValue = () => document.querySelector("#urgency").value;
 const readTodoCategoryValue = () => document.querySelector("#category").value;
 
 export class View {
-  constructor(callbacks) {
+  constructor(eventHandler) {
     this.modal = new Modal();
-    this.callbacks = { ...callbacks, editTodo: this.showEditWindow };
+    this.eventHandler = { ...eventHandler, editTodo: this.showEditWindow };
   }
   render = (todoList, selectedTodoIds) => {
     clearAllTodos();
     todoList.forEach((todo) => {
       const isSelected = selectedTodoIds.includes(todo.id);
-      const todoElement = new TodoElement(this.callbacks, todo, isSelected);
+      const todoElement = new TodoElement(this.eventHandler, todo, isSelected);
       addTodo(todoElement.element);
     });
 

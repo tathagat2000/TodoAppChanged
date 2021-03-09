@@ -67,7 +67,7 @@ export class Server {
     const todoList = helperFunctions.convertToList(todos);
     return new Promise((resolve, reject) => {
       if (this.isServerWorking()) {
-        const databaseCopy = this.database.slice(0);
+        const databaseCopy = helperFunctions.makeCopy(this.database);
         todoList.forEach((todo) => {
           const index = this.findIndexOfTodoById(todo.id);
           databaseCopy[index] = { ...todo };

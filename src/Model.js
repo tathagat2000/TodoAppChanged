@@ -82,8 +82,6 @@ export class Model {
 
   findIndexOfTodoById = (id) => this.todos.findIndex((todo) => todo.id === id);
 
-  getCurrentTodoData = (id, type) => this.findTodoById(id)?.[type];
-
   getCurrentTodoId = () => this.currentTodoId;
 
   incrementCurrentTodoId = () => {
@@ -182,6 +180,9 @@ export class Model {
       case actionType.UPDATE:
         this.updateOperation(action, actionType.UNDO);
         break;
+
+      default:
+        break;
     }
   };
 
@@ -203,6 +204,9 @@ export class Model {
 
       case actionType.UPDATE:
         this.updateOperation(action, actionType.REDO);
+        break;
+
+      default:
         break;
     }
   };

@@ -3,12 +3,12 @@ import { filterIdToValue, valueToFilter } from "./constants.js";
 export class Filter {
   constructor() {
     this.state = {
-      low: 0,
-      medium: 0,
-      high: 0,
-      personal: 0,
-      academic: 0,
-      social: 0,
+      low: false,
+      medium: false,
+      high: false,
+      personal: false,
+      academic: false,
+      social: false,
     };
   }
 

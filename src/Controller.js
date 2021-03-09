@@ -59,14 +59,16 @@ export class Controller {
 
   bulkDeleteHandler = () => {
     const todosToBeDeleted = this.model.getSelectedTodos();
+
+    if (todosToBeDeleted.length === 0) {
+      return;
+    }
+
     const action = helperFunctions.createAction(
       actionType.DELETE,
       todosToBeDeleted,
       todosToBeDeleted
     );
-    if (todosToBeDeleted.length === 0) {
-      return;
-    }
     this.model.bulkDelete(action, todosToBeDeleted);
   };
 
@@ -87,13 +89,17 @@ export class Controller {
     this.model.bulkUpdate(action, todosAfterUpdating);
   };
 
-  createTodoEventHandler = (event, text, urgency, category) => {
-    const todo = this.createTodoObject(text, urgency, category);
-    this.model.incrementCurrentTodoId();
-    const action = helperFunctions.createAction(actionType.CREATE, todo, todo);
-    this.model.addNewTodo(todo, action);
+  resetTodoInput = () => {
     this.view.resetTodoInputValues();
   };
+
+  createTodoEventHandler = (text, urgency, category) => {
+    const todo = this.createTodoObject(text, urgency, category);
+    const action = helperFunctions.createAction(actionType.CREATE, todo, todo);
+    this.model.addNewTodo(todo, action, this.resetTodoInput);
+  };
+
+  uuid = () => new Date().valueOf();
 
   createTodoObject = (
     text,
@@ -101,7 +107,7 @@ export class Controller {
     category = defaultValue.CATEGORY
   ) => {
     return {
-      id: this.model.getCurrentTodoId(),
+      id: this.uuid(),
       text,
       urgency,
       category,

@@ -84,8 +84,8 @@ export class View {
   };
 
   addBulkEventListeners = (bulkUpdateEventHandler, bulkDeleteEventHandler) => {
-    const completed = 1;
-    const notCompleted = 0;
+    const completed = true;
+    const notCompleted = false;
     document
       .querySelector("#deleteSelection")
       .addEventListener("click", bulkDeleteEventHandler);
@@ -112,7 +112,7 @@ export class View {
         const category = readTodoCategoryValue();
         const key = event.keyCode || event.which || 0;
         if (key === 13 && text) {
-          createTodoEventHandler(event, text, urgency, category);
+          createTodoEventHandler(text, urgency, category);
         }
       });
   };

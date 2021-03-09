@@ -13,10 +13,7 @@ export class Model {
     this.historyIndex = -1;
     this.history = [];
     this.filter = new Filter();
-    this.initialize().then(() => {
-      this.currentTodoId = this.findLastTodoId() + 1;
-      this.onStateChange();
-    });
+    this.initialize();
   }
 
   createTodo = (todo) => (this.todos = [...this.todos, todo]);
@@ -81,12 +78,6 @@ export class Model {
   };
 
   findIndexOfTodoById = (id) => this.todos.findIndex((todo) => todo.id === id);
-
-  getCurrentTodoId = () => this.currentTodoId;
-
-  incrementCurrentTodoId = () => {
-    this.currentTodoId++;
-  };
 
   incrementHistoryIndex = () => {
     this.historyIndex++;
@@ -239,11 +230,12 @@ export class Model {
   };
 
   //Used for adding a new Todo
-  addNewTodo = (todo, action) => {
+  addNewTodo = (todo, action, resetTodoInput) => {
     this.onCreate(todo)
       .then(() => {
         this.addToHistory(action);
         this.onStateChange();
+        resetTodoInput();
       })
       .catch(showSnackbar);
   };
@@ -287,10 +279,11 @@ export class Model {
   //Initialize local array of todo, by syncing it with server.
   //Only done once through constructor.
   initialize = () => {
-    return this.server
+    this.server
       .getDatabase()
       .then((serverDatabase) => {
         serverDatabase.forEach(this.createTodo);
+        this.onStateChange();
       })
       .catch(showSnackbar);
   };

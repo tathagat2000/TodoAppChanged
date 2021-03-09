@@ -1,87 +1,13 @@
 import { updateAnalytics } from "./analytics.js";
-import { iconClasses, createTodoElement } from "./todoElement.js";
+import { TodoElement } from "./TodoElement.js";
 import { Modal } from "./Modal.js";
-import { dataAttributes, filterIdToValue } from "./constants.js";
-import { helperFunctions } from "./helperFunctions.js";
-
-const setTodoText = (element, textValue) => {
-  element.querySelector(
-    `[data-type=${dataAttributes.TEXT}]`
-  ).innerHTML = textValue;
-};
-
-const setTodoUrgency = (element, urgencyValue) => {
-  element.querySelector(`[data-type=${dataAttributes.URGENCYICON}]`).className =
-    "";
-  element
-    .querySelector(`[data-type=${dataAttributes.URGENCYICON}]`)
-    .classList.add(...iconClasses[urgencyValue]);
-};
-
-const setTodoCategory = (element, categoryValue) => {
-  element.querySelector(
-    `[data-type=${dataAttributes.CATEGORYICON}]`
-  ).className = "";
-
-  element
-    .querySelector(`[data-type=${dataAttributes.CATEGORYICON}]`)
-    .classList.add(...iconClasses[categoryValue]);
-};
-
-const setTodoTime = (element, time) => {
-  element.querySelector(`[data-type=${dataAttributes.TIME}]`).innerHTML = time;
-};
-
-const setIsCompleted = (element, completed) => {
-  if (completed) {
-    element.classList.add("opacity");
-    element.querySelector(
-      `[data-button=${dataAttributes.COMPLETE_BUTTON}]`
-    ).innerHTML = "Completed. Undo?";
-  } else {
-    element.classList.remove("opacity");
-    element.querySelector(
-      `[data-button=${dataAttributes.COMPLETE_BUTTON}]`
-    ).innerHTML = "Mark Complete";
-  }
-};
-
-const setIsSelected = (element, isElementSelected) => {
-  if (isElementSelected) {
-    element.classList.add("selected");
-    element.querySelector(
-      `[data-button=${dataAttributes.SELECT_BUTTON}]`
-    ).style.backgroundColor = "red";
-  } else {
-    element.classList.remove("selected");
-    element.querySelector(
-      `[data-button=${dataAttributes.SELECT_BUTTON}]`
-    ).style.backgroundColor = "white";
-  }
-};
-
-const setTodoId = (element, id) => {
-  element.id = id;
-};
-
-const setValuesOnTodo = (element, todo, isElementSelected) => {
-  setTodoText(element, todo.text);
-  setTodoUrgency(element, todo.urgency);
-  setTodoCategory(element, todo.category);
-  setTodoTime(element, todo.time);
-  setIsSelected(element, isElementSelected);
-  setIsCompleted(element, todo.isCompleted);
-  setTodoId(element, todo.id);
-};
+import { filterIdToValue } from "./constants.js";
 
 const clearAllTodos = () =>
   (document.querySelector("#todoList").innerHTML = "");
 
 const addTodo = (element) =>
   document.querySelector("#todoList").appendChild(element);
-
-const addEventListenerOnTodo = (element, eventHandler) =>
-  element.addEventListener("click", eventHandler);
 
 const readTodoText = () => document.querySelector("#addTodo").value;
 
@@ -92,43 +18,17 @@ const readTodoCategoryValue = () => document.querySelector("#category").value;
 export class View {
   constructor(callbacks) {
     this.modal = new Modal();
-    this.callbacks = callbacks;
+    this.callbacks = { ...callbacks, editTodo: this.showEditWindow };
   }
   render = (todoList, selectedTodoIds) => {
     clearAllTodos();
     todoList.forEach((todo) => {
-      const element = createTodoElement();
-      const isElementSelected = selectedTodoIds.includes(todo.id);
-      setValuesOnTodo(element, todo, isElementSelected);
-      addEventListenerOnTodo(element, this.todoEventHandler);
-      addTodo(element);
+      const isSelected = selectedTodoIds.includes(todo.id);
+      const todoElement = new TodoElement(this.callbacks, todo, isSelected);
+      addTodo(todoElement.element);
     });
 
     updateAnalytics(todoList);
-  };
-
-  todoEventHandler = (event) => {
-    const id = helperFunctions.getTodoIdFromEventPath(event.path);
-
-    const button = helperFunctions.findButtonClickedOnTodo(event.path);
-
-    switch (button?.dataset?.button) {
-      case dataAttributes.COMPLETE_BUTTON:
-        this.callbacks.completeTodo(id);
-        break;
-
-      case dataAttributes.SELECT_BUTTON:
-        this.callbacks.selectTodo(id);
-        break;
-
-      case dataAttributes.EDIT_BUTTON:
-        this.callbacks.editTodo(id);
-        break;
-
-      case dataAttributes.DELETE_BUTTON:
-        this.callbacks.deleteTodo(id);
-        break;
-    }
   };
 
   resetTodoInputValues = () => {

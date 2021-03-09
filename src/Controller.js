@@ -8,7 +8,6 @@ export class Controller {
     const callbacks = {
       completeTodo: this.completeTodoHandler,
       selectTodo: this.selectTodoHandler,
-      editTodo: this.editTodoHandler,
       deleteTodo: this.deleteTodoHandler,
     };
     this.model = new Model(this.onStateChange);
@@ -37,13 +36,6 @@ export class Controller {
 
   selectTodoHandler = (id) => {
     this.model.selectTodoHandler(id);
-  };
-
-  editTodoHandler = (id) => {
-    const text = this.model.getCurrentTodoData(id, "text");
-    const urgency = this.model.getCurrentTodoData(id, "urgency");
-    const category = this.model.getCurrentTodoData(id, "category");
-    this.view.showEditWindow(text, urgency, category, id);
   };
 
   deleteTodoHandler = (id) => {

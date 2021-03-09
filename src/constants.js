@@ -39,3 +39,12 @@ export const defaultValue = {
   URGENCY: "low",
   CATEGORY: "personal",
 };
+
+export const iconClasses = {
+  [valueToFilter.low]: ["grey", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.medium]: ["orange", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.high]: ["red", "fa", "fa-exclamation-triangle"],
+  [valueToFilter.personal]: ["blue", "fa", "fa-user"],
+  [valueToFilter.academic]: ["grey", "fa", "fa-book"],
+  [valueToFilter.social]: ["pink", "fa", "fa-users"],
+};

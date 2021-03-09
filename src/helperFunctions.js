@@ -1,10 +1,11 @@
 import { dataAttributes } from "./constants.js";
 
 const convertToList = (object) => {
+  const objectCopy = helperFunctions.makeCopy(object);
   if (Array.isArray(object)) {
-    return object;
+    return objectCopy;
   } else {
-    return [object];
+    return [objectCopy];
   }
 };
 

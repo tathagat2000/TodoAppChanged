@@ -15,12 +15,10 @@ export class Filter {
   getFilterState = () => this.state;
 
   toggleFilterState = (buttonId) => {
-    const filterStateCopy = { ...this.state };
-    filterStateCopy[filterIdToValue[buttonId]] = !filterStateCopy[
-      filterIdToValue[buttonId]
-    ];
-
-    this.state = filterStateCopy;
+    this.state = {
+      ...this.state,
+      [filterIdToValue[buttonId]]: !this.state[filterIdToValue[buttonId]],
+    };
   };
 
   computeUrgencyFilterValue = () => {

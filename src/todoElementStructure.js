@@ -1,4 +1,20 @@
-import { dataAttributes, valueToFilter } from "./constants.js";
+import { dataAttributes } from "./constants.js";
+
+export const createTodoElement = (element) => {
+  if (!element) {
+    element = initializeTodoElement();
+  }
+
+  const newElement = document.createElement(element.type);
+
+  addClassesToElement(newElement, element);
+
+  addPropertiesToElement(newElement, element);
+
+  addChildrenToElement(newElement, element);
+
+  return newElement;
+};
 
 const initializeTodoElement = () => {
   const editIcon = {
@@ -128,27 +144,4 @@ const addChildrenToElement = (newElement, element) => {
   element.children.forEach((childElement) => {
     newElement.appendChild(createTodoElement(childElement));
   });
-};
-
-const todoElement = initializeTodoElement();
-
-export const createTodoElement = (element = todoElement) => {
-  const newElement = document.createElement(element.type);
-
-  addClassesToElement(newElement, element);
-
-  addPropertiesToElement(newElement, element);
-
-  addChildrenToElement(newElement, element);
-
-  return newElement;
-};
-
-export const iconClasses = {
-  [valueToFilter.low]: ["grey", "fa", "fa-exclamation-triangle"],
-  [valueToFilter.medium]: ["orange", "fa", "fa-exclamation-triangle"],
-  [valueToFilter.high]: ["red", "fa", "fa-exclamation-triangle"],
-  [valueToFilter.personal]: ["blue", "fa", "fa-user"],
-  [valueToFilter.academic]: ["grey", "fa", "fa-book"],
-  [valueToFilter.social]: ["pink", "fa", "fa-users"],
 };
